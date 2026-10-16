@@ -1,0 +1,8 @@
+Table,Rows,Columns,ID Columns
+application_train.csv,307511,122,SK_ID_CURR
+bureau.csv,1716428,17,"SK_ID_CURR, SK_ID_BUREAU"
+bureau_balance.csv,27299925,3,SK_ID_BUREAU
+previous_application.csv,1670214,37,"SK_ID_PREV, SK_ID_CURR"
+POS_CASH_balance.csv,10001358,8,"SK_ID_PREV, SK_ID_CURR"
+credit_card_balance.csv,3840312,23,"SK_ID_PREV, SK_ID_CURR"
+installments_payments.csv,13605401,8,"SK_ID_PREV, SK_ID_CURR"
