@@ -74,7 +74,59 @@ def aggregate_previous(previous: pd.DataFrame, id_col: str = "SK_ID_CURR") -> pd
           same applicant, so the tie-break matters if you want the same answer every run.
         - Do not change the input DataFrame.
     """
-    raise NotImplementedError("TODO(student): aggregate previous_application per applicant")
+
+    # Check that all required columns exist.
+    required = [id_col] + [
+        col for col in PREVIOUS_COLUMNS if col != "SK_ID_CURR"
+    ]
+    missing = [col for col in required if col not in previous.columns]
+    if missing:
+        raise ValueError(f"previous_application missing columns: {missing}")
+
+    # Copy the data so the original table is unchanged.
+    df = previous.copy()
+
+    # Replace 365243 with missing values in date columns.
+    day_cols = [col for col in PREVIOUS_DAY_COLUMNS if col in df.columns]
+    df[day_cols] = df[day_cols].replace(SENTINEL, float("nan"))
+
+    # Create indicators for approved and refused applications.
+    df["_approved"] = df["NAME_CONTRACT_STATUS"].eq("Approved")
+    df["_refused"] = df["NAME_CONTRACT_STATUS"].eq("Refused")
+
+    # Calculate applicant-level summaries.
+    result = df.groupby(id_col).agg(
+        PREV_COUNT=("SK_ID_PREV", "size"),
+        PREV_APPROVED_RATE=("_approved", "mean"),
+        PREV_REFUSED_RATE=("_refused", "mean"),
+        PREV_AMT_APPLICATION_MEAN=("AMT_APPLICATION", "mean"),
+        PREV_AMT_CREDIT_MEAN=("AMT_CREDIT", "mean"),
+        PREV_DAYS_DECISION_MAX=("DAYS_DECISION", "max"),
+        PREV_DAYS_TERMINATION_MEAN=("DAYS_TERMINATION", "mean"),
+    ).reset_index()
+
+    # Find the most recent previous application.
+    # Break ties using the larger SK_ID_PREV.
+    latest = (
+        df.sort_values(
+            ["DAYS_DECISION", "SK_ID_PREV"],
+            ascending=[False, False],
+            na_position="last",
+        )
+        .drop_duplicates(subset=id_col)
+        [[id_col, "NAME_CONTRACT_STATUS"]]
+        .rename(columns={"NAME_CONTRACT_STATUS": "PREV_LAST_STATUS"})
+    )
+
+    # Add the most recent status to the summary table.
+    result = result.merge(
+        latest,
+        on=id_col,
+        how="left",
+        validate="one_to_one",
+    )
+
+    return result
 
 
 # TODO(student)  (carry-over: finish before the next class)
