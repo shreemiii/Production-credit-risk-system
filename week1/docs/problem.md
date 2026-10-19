@@ -1,24 +1,24 @@
 # Problem statement
 
-Team: Production Credit Risk System (confirm member names before submission)
+Team: Production Credit Risk System (team member names to confirm before submission)
 
 ## 1. Who uses the model, and for what decision?
-Underwriters use default-risk estimates when an application arrives to support approval, manual review, or rejection. Today, eligibility rules and human review guide decisions. The model supports rather than replaces human judgment.
+Loan underwriting analysts use the estimated probability of repayment difficulty when reviewing new applications. At application time, the score supports a decision to approve, refer for manual review, or reject. Without the model, staff would rely on established underwriting rules and manual evaluation. The score informs, but does not independently determine, a lending decision.
 
 ## 2. The options
-Approve low-risk eligible applications; refer borderline cases to a human underwriter; reject only when the verified evidence and applicable underwriting policies justify it. Referrals cost analyst time and delay applicants.
+Low-risk applications may proceed to approval subject to eligibility checks; borderline applications go to an underwriter for document verification and judgment; high-risk applications may be rejected with appropriate review and adverse-action procedures. Referral has staff-time costs and delays the applicant, so the review band must balance those costs against avoidable defaults.
 
 ## 3. The cost of approving someone who defaults
-In the assignment's simplified model, a wrong approval costs 10 relative units.
+An approved applicant who defaults costs the lender **10 relative cost units** in the assignment's simplified loss model, reflecting lost principal, servicing, and collection costs.
 
 ## 4. The cost of rejecting someone who would have repaid
-Rejecting a good borrower costs 1 relative unit of lost business. Because wrong approvals cost ten times more, the lender should apply a more conservative threshold. In a simplified two-decision model with calibrated default probability p, the cost comparison is 10p versus 1-p; approving minimizes those costs when p is below 1/11. The actual threshold needs additional assumptions and validation.
+Rejecting a would-be repayer costs **1 relative unit** of lost lending opportunity. The 10:1 ratio makes false approvals more expensive than false rejections. In a simplified two-action comparison without review costs, approve when 10p < 1(1-p), or p < 1/11 (~9.1%); actual thresholds also depend on calibration, revenues, constraints, and review costs. Threshold optimization belongs to a later week.
 
 ## 5. Success metrics, and why
-ROC-AUC measures ranking; PR-AUC is particularly helpful with rare defaults; KS measures score separation; expected cost measures business impact once thresholds are selected. With roughly 8% defaults, always predicting no default could earn roughly 92% accuracy while missing all defaults. We want results better than random ranking on held-out data, stable enough to guide real decisions.
+Use ROC-AUC for ranking across thresholds, PR-AUC for identifying rare defaults, and KS for class separation; track expected business cost once decisions and their costs are specified. Accuracy alone is misleading: when approximately 8% default, predicting no defaults gives about 92% accuracy while catching none. The baseline should outperform random ranking (ROC-AUC 0.5 and PR-AUC near prevalence), with stable metrics on unseen applicants. Business usefulness also requires acceptable cost and fairness, not just a high AUC.
 
 ## 6. Risks and sensitive features
-CODE_GENDER and DAYS_BIRTH are sensitive; geography, income, and employment can be proxies. Errors can unfairly deny credit or expose borrowers to harmful debt. Review subgroup performance, explainability, and lending compliance before deployment.
+CODE_GENDER and DAYS_BIRTH (age) describe sensitive characteristics; REGION_RATING_CLIENT and geographic, employment, and income variables may proxy for protected status. False rejections may exclude qualified applicants; false approvals may expose borrowers to harmful debt and the lender to losses. Audit group performance and applicable lending-law requirements before deployment. Sensitive variables require careful governance, not an assumption that simply deleting them guarantees fairness.
 
 ## 7. Assumptions
-TARGET is treated as an informative historical outcome; input features must be available at application time; the simplified 10:1 cost ratio approximates business costs; and the historical sample is relevant to future applicants. Distribution shift or sampling bias could invalidate the approach.
+We assume the historical TARGET reasonably represents future repayment difficulty, that application-time features are available before the decision, that the 10:1 costs are useful approximations, and that sampled applicants resemble future applicants. The largest concern is distribution shift or selection bias: historical lender applicants and approved loans may differ from future populations. Any such mismatch requires additional validation before deployment.
