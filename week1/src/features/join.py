@@ -1,67 +1,88 @@
-"""Joining per-applicant feature tables onto the application table.
 
-The application table has exactly one row per applicant, and so must the result. A join that
-silently adds rows (because a child table was not aggregated) or drops rows (because of an
-inner join) still runs without an error, and the model then trains on the wrong data. The
-functions here make that mistake fail loudly instead.
-"""
+"""Join per-applicant feature tables onto the application table."""
 
 from __future__ import annotations
 
 import pandas as pd
 
-# PROVIDED: a feature whose name ends with this is a count, so "no records" means 0.
 COUNT_SUFFIX = "_COUNT"
 
 
-# TODO(student)
 def assert_one_row_per_applicant(
     df: pd.DataFrame, expected_ids: pd.Series, id_col: str = "SK_ID_CURR"
 ) -> None:
-    """Raise a ValueError unless ``df`` has exactly one row for each id in ``expected_ids``.
+    expected = pd.Index(expected_ids)
 
-    Args:
-        df: The table to check (for example the joined feature table).
-        expected_ids: The applicant ids that must each appear exactly once.
-        id_col: The applicant id column.
+    if id_col not in df.columns:
+        raise ValueError(f"Missing applicant ID column: {id_col}")
 
-    Raises:
-        ValueError: if the row count differs, any id appears twice, or the set of ids is not
-            exactly ``expected_ids``. The message must say which problem it found and give
-            the numbers (for example "24,395 rows for 5,000 applicants").
+    if len(df) != len(expected):
+        raise ValueError(
+            f"{len(df):,} rows for {len(expected):,} applicants"
+        )
 
-    Hints:
-        - Equal row counts are not enough on their own: one duplicated id plus one missing id
-          keeps the count the same.
-    """
-    raise NotImplementedError("TODO(student): check one row per applicant")
+    if df[id_col].duplicated().any():
+        count = int(df[id_col].duplicated().sum())
+        raise ValueError(f"{count} duplicate applicant IDs found")
+
+    if set(df[id_col]) != set(expected):
+        missing = set(expected) - set(df[id_col])
+        extra = set(df[id_col]) - set(expected)
+
+        raise ValueError(
+            f"Applicant IDs do not match: "
+            f"{len(missing)} missing, {len(extra)} unexpected"
+        )
 
 
-# TODO(student)
 def join_features(
-    app: pd.DataFrame, feature_tables: dict[str, pd.DataFrame], id_col: str = "SK_ID_CURR"
+    app: pd.DataFrame,
+    feature_tables: dict[str, pd.DataFrame],
+    id_col: str = "SK_ID_CURR",
 ) -> pd.DataFrame:
-    """Left-join each per-applicant feature table onto the application table.
 
-    Args:
-        app: The application table, one row per applicant.
-        feature_tables: Table name -> aggregated table (the output of an ``aggregate_*``
-            function), for example ``{"bureau": aggregate_bureau(bureau)}``.
-        id_col: The applicant id column.
+    result = app.copy()
+    expected_ids = app[id_col]
 
-    Returns:
-        A new DataFrame with the same rows in the same order as ``app``, every column of
-        ``app`` unchanged, plus every feature column. For applicants missing from a feature
-        table, columns ending in ``_COUNT`` are 0 and every other new column is NaN.
+    assert_one_row_per_applicant(result, expected_ids, id_col)
 
-    Raises:
-        ValueError: before joining, if a feature table has the same id twice (name the table:
-            it was probably not aggregated), or if a feature column name is already taken.
-            After joining, through ``assert_one_row_per_applicant``.
+    for name, table in feature_tables.items():
 
-    Hints:
-        - Which ``how=`` keeps every applicant, including the ones with no history at all?
-        - ``pd.merge`` has a ``validate=`` argument that can raise on duplicate keys for you.
-        - Why 0 for counts but NaN for averages? Be ready to explain it at the checkpoint.
-    """
-    raise NotImplementedError("TODO(student): left-join the feature tables")
+        if id_col not in table.columns:
+            raise ValueError(f"{name}: missing {id_col}")
+
+        if table[id_col].duplicated().any():
+            raise ValueError(
+                f"{name}: duplicate applicant IDs; "
+                "aggregate the table before joining"
+            )
+
+        new_columns = [
+            col for col in table.columns if col != id_col
+        ]
+
+        duplicates = set(new_columns) & set(result.columns)
+
+        if duplicates:
+            raise ValueError(
+                f"{name}: feature columns already exist: "
+                f"{sorted(duplicates)}"
+            )
+
+        result = result.merge(
+            table,
+            on=id_col,
+            how="left",
+            sort=False,
+            validate="one_to_one",
+        )
+
+        for col in new_columns:
+            if col.endswith(COUNT_SUFFIX):
+                result[col] = result[col].fillna(0)
+
+        assert_one_row_per_applicant(
+            result, expected_ids, id_col
+        )
+
+    return result
