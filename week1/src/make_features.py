@@ -1,3 +1,4 @@
+
 """Build the validated feature table, one row per applicant.
 
 Run it with ``python run.py features`` or ``python -m src.make_features``. It:
@@ -51,12 +52,14 @@ from src.features.ratios import RATIO_FEATURES, add_ratio_features  # noqa: F401
 from src.utils import DEFAULT_CONFIG
 from src.validate import DataValidationError, validate_features, validate_inputs  # noqa: F401
 
+
 # PROVIDED: the columns aggregate_bureau creates (the other modules list theirs).
 BUREAU_FEATURES = [
     "BUREAU_COUNT", "BUREAU_AMT_CREDIT_SUM_MEAN", "BUREAU_AMT_CREDIT_SUM_MAX",
     "BUREAU_AMT_DEBT_MEAN", "BUREAU_AMT_OVERDUE_SUM", "BUREAU_DAYS_OVERDUE_MAX",
     "BUREAU_DAYS_CREDIT_MAX", "BUREAU_ACTIVE_COUNT", "BUREAU_CLOSED_COUNT",
 ]
+
 # Every engineered column the feature table must contain.
 EXPECTED_FEATURES = (
     BUREAU_FEATURES + PREVIOUS_FEATURES + BUREAU_BALANCE_FEATURES + POS_CASH_FEATURES
@@ -68,53 +71,115 @@ EXPECTED_FEATURES = (
 def load_tables(config: dict[str, Any], sample_dir: Path) -> dict[str, pd.DataFrame]:
     """Read all seven tables from ``sample_dir``. A missing file is a validation problem."""
     tables, missing = {}, []
+
     for name, filename in config["tables"].items():
         path = sample_dir / filename
+
         if path.exists():
             tables[name] = pd.read_csv(path)
         else:
             missing.append(f"{name}: file {path} not found")
+
     if missing:
         raise DataValidationError("input", missing)
+
     return tables
 
 
-# TODO(student)
-def build_feature_table(tables: dict[str, pd.DataFrame], config: dict[str, Any]) -> pd.DataFrame:
-    """Turn the seven raw tables into one validated table with one row per applicant.
+# COMPLETED: Step 20
+def build_feature_table(
+    tables: dict[str, pd.DataFrame],
+    config: dict[str, Any],
+) -> pd.DataFrame:
+    """Turn seven raw tables into one validated table with one row per applicant.
 
     Args:
-        tables: Table name -> raw DataFrame, as returned by ``load_tables``.
-        config: The Week 2 config (``load_week2_config``).
+        tables: Table name -> raw DataFrame, as returned by load_tables.
+        config: The Week 2 config from load_week2_config.
 
     Returns:
-        The application table's columns (unchanged, including TARGET) plus every column in
-        ``EXPECTED_FEATURES``, one row per applicant, in the application table's order.
+        The application table's columns (unchanged, including TARGET) plus every
+        engineered column in EXPECTED_FEATURES, one row per applicant.
 
     Raises:
-        DataValidationError: from ``validate_inputs`` before any aggregation, or from
-            ``validate_features`` on the result.
-
-    Hints:
-        - Follow the six steps in this module's docstring; steps 2 to 5 are one call each
-          once the six aggregations are written.
-        - Validate the inputs FIRST. If you aggregate first, a renamed column crashes with a
-          KeyError and you never see the rest of the problems.
-        - Do not fill missing values, scale, or clean DAYS_EMPLOYED here. Those are fitted or
-          applied in the model pipeline, on the train split only; doing them here would use
-          validation applicants' data and would run twice.
+        DataValidationError: If input or output validation fails.
     """
-    raise NotImplementedError("TODO(student): build and validate the feature table")
+
+    # Step 1: Validate all raw tables before aggregation.
+    validate_inputs(tables)
+
+    # Step 2: Load the main application table.
+    app = tables["application_train"]
+
+    # Step 3: Aggregate all six credit-history tables.
+    bureau = aggregate_bureau(
+        tables["bureau"]
+    )
+
+    previous = aggregate_previous(
+        tables["previous_application"]
+    )
+
+    bureau_balance = aggregate_bureau_balance(
+        tables["bureau_balance"],
+        tables["bureau"],
+    )
+
+    pos_cash = aggregate_pos_cash(
+        tables["POS_CASH_balance"]
+    )
+
+    installments = aggregate_installments(
+        tables["installments_payments"]
+    )
+
+    credit_card = aggregate_credit_card(
+        tables["credit_card_balance"]
+    )
+
+    # Step 4: Combine the per-applicant feature tables.
+    feature_tables = {
+        "bureau": bureau,
+        "previous_application": previous,
+        "bureau_balance": bureau_balance,
+        "POS_CASH_balance": pos_cash,
+        "installments_payments": installments,
+        "credit_card_balance": credit_card,
+    }
+
+    features = join_features(
+        app,
+        feature_tables,
+    )
+
+    # Step 5: Add the four financial ratio features.
+    features = add_ratio_features(features)
+
+    # Step 6: Validate the final output.
+    validate_features(
+        features,
+        EXPECTED_FEATURES,
+        len(app),
+        config,
+    )
+
+    return features
 
 
 # PROVIDED
 def output_paths(config: dict[str, Any], sample_dir: Path) -> tuple[Path, Path]:
-    """Where the feature table and the validation report go for this input folder."""
+    """Where the feature table and validation report go for this input folder."""
     name = sample_dir.name
     week2 = config["week2"]["paths"]
-    table = week2["features_dir"] / ("features.parquet" if name == "sample"
-                                     else f"features_{name}.parquet")
+
+    table = week2["features_dir"] / (
+        "features.parquet"
+        if name == "sample"
+        else f"features_{name}.parquet"
+    )
+
     report = week2["reports_dir"] / f"validation_{name}.json"
+
     return table, report
 
 
@@ -127,34 +192,89 @@ def write_report(path: Path, record: dict[str, Any]) -> None:
 
 # PROVIDED
 def main() -> None:
-    """Command-line entry point: ``python -m src.make_features [--sample-dir PATH]``."""
-    parser = argparse.ArgumentParser(description="Build the validated feature table.")
-    parser.add_argument("--config", default=DEFAULT_CONFIG, help="path to config.yaml")
-    parser.add_argument("--sample-dir", default=None, help="folder with the 7 tables")
+    """Command-line entry point: python -m src.make_features [--sample-dir PATH]."""
+
+    parser = argparse.ArgumentParser(
+        description="Build the validated feature table."
+    )
+
+    parser.add_argument(
+        "--config",
+        default=DEFAULT_CONFIG,
+        help="path to config.yaml",
+    )
+
+    parser.add_argument(
+        "--sample-dir",
+        default=None,
+        help="folder with the 7 tables",
+    )
+
     args = parser.parse_args()
 
     config = load_week2_config(args.config)
     root = config["root"]
-    sample_dir = (root / args.sample_dir).resolve() if args.sample_dir \
+
+    sample_dir = (
+        (root / args.sample_dir).resolve()
+        if args.sample_dir
         else config["paths"]["sample_dir"]
+    )
+
     table_path, report_path = output_paths(config, sample_dir)
-    record: dict[str, Any] = {"sample_dir": str(sample_dir.relative_to(root)
-                                                if sample_dir.is_relative_to(root)
-                                                else sample_dir)}
+
+    record: dict[str, Any] = {
+        "sample_dir": str(
+            sample_dir.relative_to(root)
+            if sample_dir.is_relative_to(root)
+            else sample_dir
+        )
+    }
 
     try:
-        features = build_feature_table(load_tables(config, sample_dir), config)
+        features = build_feature_table(
+            load_tables(config, sample_dir),
+            config,
+        )
+
     except DataValidationError as err:
-        write_report(report_path, {**record, "status": "fail", "stage": err.stage,
-                                   "problems": err.problems})
-        print(f"\nFAILED: {err}\n\nNo feature table written. Report: {report_path}")
+        write_report(
+            report_path,
+            {
+                **record,
+                "status": "fail",
+                "stage": err.stage,
+                "problems": err.problems,
+            },
+        )
+
+        print(
+            f"\nFAILED: {err}\n\n"
+            f"No feature table written. Report: {report_path}"
+        )
+
         sys.exit(1)
 
     table_path.parent.mkdir(parents=True, exist_ok=True)
-    features.to_parquet(table_path, index=False)
-    write_report(report_path, {**record, "status": "pass", "stage": None, "problems": [],
-                               "rows": len(features), "columns": features.shape[1],
-                               "output": str(table_path.relative_to(root))})
+
+    features.to_parquet(
+        table_path,
+        index=False,
+    )
+
+    write_report(
+        report_path,
+        {
+            **record,
+            "status": "pass",
+            "stage": None,
+            "problems": [],
+            "rows": len(features),
+            "columns": features.shape[1],
+            "output": str(table_path.relative_to(root)),
+        },
+    )
+
     print(f"PASSED: {len(features):,} rows x {features.shape[1]} columns")
     print(f"Wrote {table_path}\nWrote {report_path}")
 
