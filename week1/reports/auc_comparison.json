@@ -1,0 +1,83 @@
+{
+  "seed": 42,
+  "n_bootstrap": 1000,
+  "n_valid": 1000,
+  "valid_defaults": 81,
+  "results": [
+    {
+      "feature_set": "application",
+      "tables": [],
+      "n_features": 121,
+      "roc_auc": 0.7097220542994935,
+      "pr_auc": 0.16930477760163976,
+      "ks": 0.35599618479560446,
+      "roc_auc_ci": [
+        0.6509649150240888,
+        0.7668737706329499
+      ],
+      "delta_roc_auc": 0.0,
+      "delta_ci": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "feature_set": "application+bureau",
+      "tables": [
+        "bureau"
+      ],
+      "n_features": 130,
+      "roc_auc": 0.707048724458953,
+      "pr_auc": 0.16219755631360586,
+      "ks": 0.354491597146657,
+      "roc_auc_ci": [
+        0.6497687035376376,
+        0.7614447211111278
+      ],
+      "delta_roc_auc": -0.0026733298405405836,
+      "delta_ci": [
+        -0.011200145865203496,
+        0.006155067804217311
+      ]
+    },
+    {
+      "feature_set": "application+previous",
+      "tables": [
+        "previous_application"
+      ],
+      "n_features": 129,
+      "roc_auc": 0.7152970888915757,
+      "pr_auc": 0.1779465524440378,
+      "ks": 0.36147718265962725,
+      "roc_auc_ci": [
+        0.654552933101543,
+        0.7729717768565596
+      ],
+      "delta_roc_auc": 0.005575034592082195,
+      "delta_ci": [
+        -0.006818169498301607,
+        0.018670695481257094
+      ]
+    },
+    {
+      "feature_set": "application+bureau+previous",
+      "tables": [
+        "bureau",
+        "previous_application"
+      ],
+      "n_features": 138,
+      "roc_auc": 0.713241714692567,
+      "pr_auc": 0.16913712330396108,
+      "ks": 0.3553244938808958,
+      "roc_auc_ci": [
+        0.6525861972705939,
+        0.7695714724071189
+      ],
+      "delta_roc_auc": 0.003519660393073498,
+      "delta_ci": [
+        -0.011010529138007602,
+        0.017785428048640986
+      ]
+    }
+  ]
+}
