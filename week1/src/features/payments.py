@@ -72,7 +72,65 @@ def aggregate_installments(
           "on time". Make the missing rows NaN before taking a share, so they drop out.
         - ``share_where`` uses every row as the denominator. Here you need a different one.
     """
-    raise NotImplementedError("TODO(student): aggregate installments_payments per applicant")
+    
+    # Check required columns.
+    required = [id_col] + [
+        col for col in INSTALLMENTS_COLUMNS if col != "SK_ID_CURR"
+    ]
+    missing = [col for col in required if col not in installments.columns]
+    if missing:
+        raise ValueError(f"installments_payments missing columns: {missing}")
+
+    # Avoid modifying the original dataset.
+    df = installments.copy()
+
+    # Only use rows where a payment was actually recorded.
+    paid = (
+        df["DAYS_ENTRY_PAYMENT"].notna()
+        & df["AMT_PAYMENT"].notna()
+    )
+
+    valid_date = paid & df["DAYS_INSTALMENT"].notna()
+    valid_amount = paid & df["AMT_INSTALMENT"].notna()
+
+    # A payment is late if it was made after its due date.
+    df["_late"] = (
+        (df["DAYS_ENTRY_PAYMENT"] > df["DAYS_INSTALMENT"])
+        .astype(float)
+        .where(valid_date)
+    )
+
+    # Days late cannot be negative.
+    df["_days_late"] = (
+        (df["DAYS_ENTRY_PAYMENT"] - df["DAYS_INSTALMENT"])
+        .clip(lower=0)
+        .where(valid_date)
+    )
+
+    # Check whether the applicant paid less than required.
+    df["_underpaid"] = (
+        (df["AMT_PAYMENT"] < df["AMT_INSTALMENT"])
+        .astype(float)
+        .where(valid_amount)
+    )
+
+    # Difference between actual payment and amount due.
+    df["_payment_diff"] = (
+        (df["AMT_PAYMENT"] - df["AMT_INSTALMENT"])
+        .where(valid_amount)
+    )
+
+    # Summarize payments into one row per applicant.
+    result = df.groupby(id_col).agg(
+        INST_COUNT=("SK_ID_PREV", "size"),
+        INST_LATE_SHARE=("_late", "mean"),
+        INST_DAYS_LATE_MAX=("_days_late", "max"),
+        INST_UNDERPAID_SHARE=("_underpaid", "mean"),
+        INST_PAYMENT_DIFF_MEAN=("_payment_diff", "mean"),
+    ).reset_index()
+
+    return result[[id_col] + INSTALLMENTS_FEATURES]
+
 
 
 # TODO(student)
@@ -101,4 +159,34 @@ def aggregate_credit_card(
           there instead of inf, and pandas' mean and max skip NaN.
         - A balance can be slightly negative (the customer overpaid). Keep it.
     """
-    raise NotImplementedError("TODO(student): aggregate credit_card_balance per applicant")
+    
+    # Check required columns.
+    required = [id_col] + [
+        col for col in CREDIT_CARD_COLUMNS if col != "SK_ID_CURR"
+    ]
+    missing = [col for col in required if col not in credit_card.columns]
+    if missing:
+        raise ValueError(f"credit_card_balance missing columns: {missing}")
+
+    # Work on a copy of the data.
+    df = credit_card.copy()
+
+    # Calculate utilization while avoiding division by zero.
+    # Only months with a positive credit limit are valid.
+    df["_utilization"] = safe_divide(
+        df["AMT_BALANCE"],
+        df["AMT_CREDIT_LIMIT_ACTUAL"]
+    ).where(df["AMT_CREDIT_LIMIT_ACTUAL"] > 0)
+
+    # Aggregate monthly card records per applicant.
+    result = df.groupby(id_col).agg(
+        CC_MONTHS_COUNT=("SK_ID_PREV", "size"),
+        CC_BALANCE_MEAN=("AMT_BALANCE", "mean"),
+        CC_UTILIZATION_MEAN=("_utilization", "mean"),
+        CC_UTILIZATION_MAX=("_utilization", "max"),
+        CC_DRAWINGS_MEAN=("AMT_DRAWINGS_CURRENT", "mean"),
+        CC_DPD_MAX=("SK_DPD", "max"),
+    ).reset_index()
+
+    return result[[id_col] + CREDIT_CARD_FEATURES]
+
