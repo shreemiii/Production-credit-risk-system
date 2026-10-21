@@ -114,4 +114,69 @@ def aggregate_bureau_balance(
           share: a credit with 2 months must not weigh as much as one with 60.
         - Credits in bureau without any monthly history must not be counted.
     """
-    raise NotImplementedError("TODO(student): aggregate bureau_balance in two stages")
+    
+    # Check required columns in both tables.
+    required_bb = ["SK_ID_BUREAU", "STATUS"]
+    required_bureau = ["SK_ID_BUREAU", id_col]
+
+    for name, table, required in [
+        ("bureau_balance", bureau_balance, required_bb),
+        ("bureau", bureau, required_bureau),
+    ]:
+        missing = [col for col in required if col not in table.columns]
+        if missing:
+            raise ValueError(f"{name} missing columns: {missing}")
+
+    # Work on a copy of the monthly history.
+    df = bureau_balance.copy()
+
+    # Convert statuses 0-5 to numbers.
+    # C and X become NaN.
+    df["_numeric_status"] = pd.to_numeric(
+        df["STATUS"], errors="coerce"
+    )
+
+    # Mark months where payments were late.
+    df["_late"] = df["_numeric_status"].between(1, 5)
+
+    # Stage 1: Summarize each bureau credit.
+    credit_summary = df.groupby("SK_ID_BUREAU").agg(
+        MONTHS_COUNT=("STATUS", "size"),
+        LATE_MONTHS_COUNT=("_late", "sum"),
+        WORST_STATUS=("_numeric_status", "max"),
+    ).reset_index()
+
+    # Connect each bureau credit to its applicant.
+    credit_summary = credit_summary.merge(
+        bureau[["SK_ID_BUREAU", id_col]],
+        on="SK_ID_BUREAU",
+        how="inner",
+        validate="many_to_one",
+    )
+
+    # Stage 2: Summarize all credits for each applicant.
+    result = credit_summary.groupby(id_col).agg(
+        BB_CREDIT_COUNT=("SK_ID_BUREAU", "nunique"),
+        BB_MONTHS_COUNT=("MONTHS_COUNT", "sum"),
+        BB_LATE_MONTHS_COUNT=("LATE_MONTHS_COUNT", "sum"),
+        BB_WORST_STATUS=("WORST_STATUS", "max"),
+    ).reset_index()
+
+    # Calculate late share using total monthly records.
+    result["BB_LATE_SHARE"] = (
+        result["BB_LATE_MONTHS_COUNT"]
+        / result["BB_MONTHS_COUNT"]
+    )
+
+    # Return the required columns in the specified order.
+    return result[
+        [
+            id_col,
+            "BB_CREDIT_COUNT",
+            "BB_MONTHS_COUNT",
+            "BB_LATE_MONTHS_COUNT",
+            "BB_LATE_SHARE",
+            "BB_WORST_STATUS",
+        ]
+    ]
+

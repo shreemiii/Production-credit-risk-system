@@ -33,25 +33,24 @@ future. One look at `df["COL"].max()` is better than an opinion.
 | BUREAU_AMT_OVERDUE_SUM | bureau | Yes | Sums overdue amounts reported in the bureau snapshot, rather than future repayment outcomes. All sampled update dates are at or before application (max DAYS_CREDIT_UPDATE = 0). |
 | BUREAU_DAYS_OVERDUE_MAX | bureau | Yes | Takes the worst days overdue already reported at application. CREDIT_DAY_OVERDUE is a duration, not a date; positive durations do not imply future data. Max DAYS_CREDIT_UPDATE = 0. |
 | BUREAU_DAYS_CREDIT_MAX | bureau | Yes | Measures when the newest existing bureau credit opened. Sample DAYS_CREDIT ranges from -2922 to -2, so every opening predates application. |
-| PREV_COUNT | previous_application | ? | TODO(student) |
-| PREV_APPROVED_RATE | previous_application | ? | TODO(student) |
-| PREV_REFUSED_RATE | previous_application | ? | TODO(student) |
-| PREV_AMT_APPLICATION_MEAN | previous_application | ? | TODO(student) |
-| PREV_AMT_CREDIT_MEAN | previous_application | ? | TODO(student) |
-| PREV_DAYS_DECISION_MAX | previous_application | ? | TODO(student) |
-| PREV_DAYS_TERMINATION_MEAN | previous_application | ? | TODO(student) |
-| PREV_LAST_STATUS | previous_application | ? | TODO(student) |
-| BB_CREDIT_COUNT | bureau_balance | ? | TODO(student) |
-| BB_MONTHS_COUNT | bureau_balance | ? | TODO(student) |
-| BB_LATE_MONTHS_COUNT | bureau_balance | ? | TODO(student) |
-| BB_LATE_SHARE | bureau_balance | ? | TODO(student) |
-| BB_WORST_STATUS | bureau_balance | ? | TODO(student) |
-| POS_LOAN_COUNT | POS_CASH_balance | ? | TODO(student) |
-| POS_MONTHS_COUNT | POS_CASH_balance | ? | TODO(student) |
-| POS_DPD_MAX | POS_CASH_balance | ? | TODO(student) |
-| POS_DPD_MEAN | POS_CASH_balance | ? | TODO(student) |
-| POS_LATE_SHARE | POS_CASH_balance | ? | TODO(student) |
-| POS_COMPLETED_SHARE | POS_CASH_balance | ? | TODO(student) |
+| PREV_COUNT | previous_application | Yes | The number of earlier Home Credit applications is historical information. Verify that DAYS_DECISION does not extend into the future. |
+| PREV_APPROVED_RATE | previous_application | Yes | Approval rates are calculated using decisions from previous applications, which should already be known. |
+| PREV_REFUSED_RATE | previous_application | Yes | Refusal rates are based on previous lending decisions rather than the outcome of the current application. |
+| PREV_AMT_APPLICATION_MEAN | previous_application | Yes | Previously requested loan amounts were recorded when the earlier applications were submitted. |
+| PREV_AMT_CREDIT_MEAN | previous_application | Yes | The amounts offered in previous lending decisions are already recorded in Home Credit's history. |
+| PREV_DAYS_DECISION_MAX | previous_application | Yes | This represents the most recent earlier lending decision. Confirm that DAYS_DECISION has no future values. |
+| PREV_DAYS_TERMINATION_MEAN | previous_application | Yes | After replacing the 365243 missing-date placeholder, the maximum DAYS_TERMINATION was -2, with no future values in our sample. The feature uses historical termination dates. |
+| PREV_LAST_STATUS | previous_application | Yes | This records the status of the most recent earlier application. DAYS_DECISION had a maximum of -2, confirming the decisions occurred before the current application. || BB_CREDIT_COUNT | bureau_balance | Yes | Counts credits with existing monthly history. Confirm that MONTHS_BALANCE contains no future observations. |
+| BB_MONTHS_COUNT | bureau_balance | Yes | Counts monthly bureau records available before or at the current application. |
+| BB_LATE_MONTHS_COUNT | bureau_balance | Yes | Counts previously recorded months in which a credit account was overdue. |
+| BB_LATE_SHARE | bureau_balance | Yes | Calculated from historical late months divided by historical observed months. |
+| BB_WORST_STATUS | bureau_balance | Yes | The worst delinquency status comes from the recorded bureau monthly history, assuming no future observations are included. |
+| POS_LOAN_COUNT | POS_CASH_balance | Yes | Counts existing previous POS and cash loans using the monthly history available at application time. |
+| POS_MONTHS_COUNT | POS_CASH_balance | Yes | Counts recorded months for previous loans. Verify that MONTHS_BALANCE does not contain future months. |
+| POS_DPD_MAX | POS_CASH_balance | Yes | Maximum days past due is based on recorded payment delays in earlier monthly observations. |
+| POS_DPD_MEAN | POS_CASH_balance | Yes | Average days past due uses the historical monthly payment records available at application time. |
+| POS_LATE_SHARE | POS_CASH_balance | Yes | Measures the proportion of recorded historical months with late payments. |
+| POS_COMPLETED_SHARE | POS_CASH_balance | Yes | Indicates the share of previous loans already marked completed in the historical records. Future completion statuses must not be included. |
 
 ## Application columns worth a second look
 
@@ -61,11 +60,11 @@ download) before you answer.
 
 | Feature | Source table | Known at application time? | Why / how you checked |
 |---|---|---|---|
-| TARGET | application_train | ? | TODO(student) |
-| EXT_SOURCE_2 | application_train | ? | TODO(student) |
-| DEF_30_CNT_SOCIAL_CIRCLE | application_train | ? | TODO(student) |
-| AMT_REQ_CREDIT_BUREAU_HOUR | application_train | ? | TODO(student) |
-| DAYS_LAST_PHONE_CHANGE | application_train | ? | TODO(student) |
+| TARGET | application_train | No | TARGET indicates whether the applicant experienced repayment difficulties on the current loan. This outcome occurs after the application and must only be used as the training label, never as an input feature. |
+| EXT_SOURCE_2 | application_train | Yes | This is an external risk score. It can be used if the score is obtained before the lending decision and is not updated using the current loan outcome. |
+| DEF_30_CNT_SOCIAL_CIRCLE | application_train | Yes | This counts observed social-circle defaults reaching 30 days past due. It is usable if the information comes from the application-time snapshot. |
+| AMT_REQ_CREDIT_BUREAU_HOUR | application_train | Yes | This counts credit bureau inquiries in the hour before the current application. That history should already be available when the bureau report is pulled. |
+| DAYS_LAST_PHONE_CHANGE | application_train | Yes | This measures the time since the applicant last changed their phone. It is historical if DAYS_LAST_PHONE_CHANGE is no greater than zero. |
 
 ## Beyond single columns
 
@@ -73,7 +72,7 @@ Leakage can also come from **how** a feature is computed, not only from which co
 In two or three sentences: name one way your feature code could leak even if every column
 above is a Yes, and how your code avoids it.
 
-TODO(student)
+Data leakage could also occur if an applicant's multiple historical records were treated as separate observations and ended up in both the training and validation sets. Our aggregation creates one row per applicant, and our join checks verify that applicant IDs remain unique. This helps prevent the same applicant from appearing multiple times because of historical table joins.
 
 ## Bureau timing evidence for Monday
 

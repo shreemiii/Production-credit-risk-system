@@ -153,4 +153,49 @@ def aggregate_pos_cash(pos_cash: pd.DataFrame, id_col: str = "SK_ID_CURR") -> pd
           applicant (the same two-stage idea as bureau_balance).
         - Watch the denominators: POS_LATE_SHARE is over months, POS_COMPLETED_SHARE over loans.
     """
-    raise NotImplementedError("TODO(student): aggregate POS_CASH_balance per applicant")
+    required = [id_col, "SK_ID_PREV", "NAME_CONTRACT_STATUS", "SK_DPD"]
+    missing = [col for col in required if col not in pos_cash.columns]
+
+    if missing:
+        raise ValueError(f"POS_CASH_balance missing columns: {missing}")
+
+    df = pos_cash.copy()
+
+    # Summarize monthly records for each applicant.
+    result = df.groupby(id_col).agg(
+        POS_LOAN_COUNT=("SK_ID_PREV", "nunique"),
+        POS_MONTHS_COUNT=("SK_ID_PREV", "size"),
+        POS_DPD_MAX=("SK_DPD", "max"),
+        POS_DPD_MEAN=("SK_DPD", "mean"),
+    ).reset_index()
+
+    # Percentage of monthly records with late payments.
+    late_share = (
+        df.assign(_late=df["SK_DPD"] > 0)
+        .groupby(id_col)["_late"]
+        .mean()
+        .reset_index(name="POS_LATE_SHARE")
+    )
+
+    # Determine whether each loan was ever completed.
+    loan_completed = (
+        df.assign(
+            _completed=df["NAME_CONTRACT_STATUS"] == "Completed"
+        )
+        .groupby([id_col, "SK_ID_PREV"])["_completed"]
+        .any()
+        .reset_index()
+    )
+
+    # Percentage of loans marked completed at least once.
+    completed_share = (
+        loan_completed.groupby(id_col)["_completed"]
+        .mean()
+        .reset_index(name="POS_COMPLETED_SHARE")
+    )
+
+    result = result.merge(late_share, on=id_col, how="left")
+    result = result.merge(completed_share, on=id_col, how="left")
+
+    return result
+
