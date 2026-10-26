@@ -109,7 +109,12 @@ def undersample(
         - Only ever call this on TRAINING rows. ``fit_model`` and your
           ``cross_validate_auc`` make sure of that: never undersample a validation fold.
     """
-    raise NotImplementedError("TODO(student): keep all defaulters and ratio x as many others")
+    pos = np.flatnonzero(y.to_numpy() == 1)
+    neg = np.flatnonzero(y.to_numpy() == 0)
+    k = min(len(neg), int(ratio * len(pos)))
+    rng = np.random.default_rng(seed)
+    keep = np.sort(np.concatenate([pos, rng.choice(neg, size=k, replace=False)]))
+    return X.iloc[keep].reset_index(drop=True), y.iloc[keep].reset_index(drop=True)
 
 
 # PROVIDED
