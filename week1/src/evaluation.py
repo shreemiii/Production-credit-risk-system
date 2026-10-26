@@ -57,7 +57,42 @@ def cross_validate_auc(
           itself in every fold would reuse one object for all folds.
         - Start with ``oof = np.full(len(y), np.nan)`` and fill one fold at a time.
     """
-    raise NotImplementedError("TODO(student): stratified k-fold AUC with out-of-fold scores")
+       # Split the training data into stratified folds
+    skf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
+
+    fold_aucs = []
+    oof = np.full(len(y), np.nan)
+
+    for train_idx, valid_idx in skf.split(X, y):
+        X_train = X.iloc[train_idx]
+        y_train = y.iloc[train_idx]
+        X_valid = X.iloc[valid_idx]
+        y_valid = y.iloc[valid_idx]
+
+        # Train a fresh model on this fold's training rows
+        fold_model = clone(model)
+        fold_model = fit_model(
+            fold_model, X_train, y_train,
+            undersample_ratio=undersample_ratio,
+            seed=seed,
+        )
+
+        # Predict probabilities for the held-out fold
+        scores = fold_model.predict_proba(X_valid)[:, 1]
+
+        # Save scores in their original row positions
+        oof[valid_idx] = scores
+
+        # Calculate AUC for this fold
+        fold_auc = roc_auc_score(y_valid, scores)
+        fold_aucs.append(float(fold_auc))
+
+    return {
+        "fold_aucs": fold_aucs,
+        "mean": float(np.mean(fold_aucs)),
+        "std": float(np.std(fold_aucs)),
+        "oof": oof,
+    }
 
 
 # PROVIDED

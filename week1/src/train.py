@@ -130,7 +130,60 @@ def tune_tree(data: TrainingData, config: dict[str, Any]) -> dict[str, Any]:
           "min_samples_leaf": leaf}}``.
         - Look at ``train_and_log`` for how to open a run with tags.
     """
-    raise NotImplementedError("TODO(student): grid-search the tree and train the winner")
+
+    grid = config["week3"]["tree_grid"]
+
+    best_auc = float("-inf")
+    best_spec = None
+
+    tags = {
+        **run_tags(config, data.data_version, "tree grid search"),
+        "step": "tree_tuning",
+    }
+
+    with mlflow.start_run(run_name="tree_tuning", tags=tags):
+
+        for depth, leaf in itertools.product(
+            grid["max_depth"],
+            grid["min_samples_leaf"],
+        ):
+            spec = {
+                "model": "decision_tree",
+                "params": {
+                    "max_depth": depth,
+                    "min_samples_leaf": leaf,
+                },
+            }
+
+            name = f"tree_d{depth}_l{leaf}"
+
+            result = train_and_log(
+                name,
+                spec,
+                data,
+                config,
+                nested=True,
+                log_model=False,
+            )
+
+            if result["cv_auc_mean"] > best_auc:
+                best_auc = result["cv_auc_mean"]
+                best_spec = spec
+
+        mlflow.log_params({
+            "best_max_depth": best_spec["params"]["max_depth"],
+            "best_min_samples_leaf": best_spec["params"]["min_samples_leaf"],
+        })
+        mlflow.log_metric("best_cv_auc_mean", best_auc)
+
+    return train_and_log(
+        TUNED_TREE,
+        best_spec,
+        data,
+        config,
+        log_model=True,
+    )
+
 
 
 # PROVIDED
