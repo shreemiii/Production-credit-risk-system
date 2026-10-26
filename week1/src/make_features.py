@@ -52,7 +52,6 @@ from src.features.ratios import RATIO_FEATURES, add_ratio_features  # noqa: F401
 from src.utils import DEFAULT_CONFIG
 from src.validate import DataValidationError, validate_features, validate_inputs  # noqa: F401
 
-
 # PROVIDED: the columns aggregate_bureau creates (the other modules list theirs).
 BUREAU_FEATURES = [
     "BUREAU_COUNT", "BUREAU_AMT_CREDIT_SUM_MEAN", "BUREAU_AMT_CREDIT_SUM_MAX",

@@ -114,7 +114,7 @@ def aggregate_bureau_balance(
           share: a credit with 2 months must not weigh as much as one with 60.
         - Credits in bureau without any monthly history must not be counted.
     """
-    
+
     # Check required columns in both tables.
     required_bb = ["SK_ID_BUREAU", "STATUS"]
     required_bureau = ["SK_ID_BUREAU", id_col]

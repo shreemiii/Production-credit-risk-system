@@ -72,7 +72,7 @@ def aggregate_installments(
           "on time". Make the missing rows NaN before taking a share, so they drop out.
         - ``share_where`` uses every row as the denominator. Here you need a different one.
     """
-    
+
     # Check required columns.
     required = [id_col] + [
         col for col in INSTALLMENTS_COLUMNS if col != "SK_ID_CURR"
@@ -159,7 +159,7 @@ def aggregate_credit_card(
           there instead of inf, and pandas' mean and max skip NaN.
         - A balance can be slightly negative (the customer overpaid). Keep it.
     """
-    
+
     # Check required columns.
     required = [id_col] + [
         col for col in CREDIT_CARD_COLUMNS if col != "SK_ID_CURR"

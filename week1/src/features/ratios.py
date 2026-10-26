@@ -36,7 +36,7 @@ def add_ratio_features(app: pd.DataFrame) -> pd.DataFrame:
         - ``require_columns(app, RATIO_INPUTS, "application_train")`` first.
         - ``safe_divide`` already handles the zero and missing cases.
     """
-    
+
     # Make sure all necessary columns exist.
     require_columns(app, RATIO_INPUTS, "application_train")
 
