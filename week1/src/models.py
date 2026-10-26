@@ -1,3 +1,4 @@
+
 """The models Week 3 compares, built from a short spec in config/models.yaml.
 
 A spec is a small dict, for example::
@@ -78,9 +79,28 @@ def make_model(
           ``verbose=-1``, or ``xgboost.XGBClassifier``).
     """
     name = spec["model"]
+
     if name == "logistic_regression":
         return build_model(config, build_preprocessor(numeric_cols, categorical_cols))
-    raise NotImplementedError("TODO(student): build the decision tree and boosting pipelines")
+
+    params = spec.get("params") or {}
+    params = {**params, "random_state": config["seed"]}
+
+    if name == "decision_tree":
+        model = DecisionTreeClassifier(**params)
+
+    elif name == "hist_gradient_boosting":
+        model = HistGradientBoostingClassifier(**params)
+
+    else:
+        raise ValueError(
+            f"Unknown model '{name}'. Valid models: {sorted(MODEL_NAMES)}"
+        )
+
+    return Pipeline([
+        ("preprocess", tree_preprocessor(numeric_cols, categorical_cols)),
+        ("model", model),
+    ])
 
 
 # TODO(student)
@@ -139,4 +159,3 @@ def describe_spec(spec: dict[str, Any]) -> str:
     if spec.get("undersample"):
         changes["undersample"] = spec["undersample"]
     return ", ".join(f"{key}={changes[key]}" for key in sorted(changes))
-
