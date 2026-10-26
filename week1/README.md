@@ -223,3 +223,9 @@ The tagged repo must contain:
 | "data/sample already exists" | Add `--force` to rebuild it. |
 | Sample hash mismatch in `python run.py check` | Restore `scripts/make_sample.py` and `config/config.yaml` from the template, then `python run.py sample --force`. |
 | Tests fail with `NotImplementedError` | Expected until you write that TODO. |
+
+
+
+## Week 2: Feature Engineering and Model Comparison
+
+We extended the application-only baseline (ROC-AUC 0.710) by progressively adding features from six historical credit tables and four financial ratios. The highest ROC-AUC was 0.731 after adding credit-card features, an improvement of 0.021 over baseline, while the final model including ratios achieved 0.727. Installment-payment and credit-card features contributed to stronger predictive performance, whereas adding bureau features alone slightly reduced ROC-AUC to 0.707. However, every 95% bootstrap confidence interval for the change in ROC-AUC includes zero, so none of these improvements can be considered statistically conclusive. These results suggest that historical repayment behavior may be useful, but further evaluation is necessary before claiming a reliable improvement.
