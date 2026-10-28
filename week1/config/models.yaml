@@ -42,3 +42,12 @@ runs:
   hgb_l2:
     model: hist_gradient_boosting
     params: {l2_regularization: 1.0}
+  
+  hgb_lower_lr:
+    model: hist_gradient_boosting
+    params: {learning_rate: 0.05}
+
+  hgb_fewer_leaves:
+    model: hist_gradient_boosting
+    params: {max_leaf_nodes: 15}
+
