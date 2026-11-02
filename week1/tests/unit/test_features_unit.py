@@ -58,7 +58,14 @@ def test_previous_features_ignore_row_order() -> None:
         - Compare both results sorted by SK_ID_CURR with ``pd.testing.assert_frame_equal``
           (``check_like=True`` ignores column order).
     """
-    pytest.fail("TODO(student): write this test")
+    prev = small_previous()
+    expected = aggregate_previous(prev).sort_values("SK_ID_CURR").reset_index(drop=True)
+
+    # Reverse the tied decisions too, so an order-dependent tie-break cannot hide.
+    for shuffled in (prev.iloc[::-1], prev.sample(frac=1, random_state=0)):
+        actual = aggregate_previous(shuffled).sort_values("SK_ID_CURR").reset_index(drop=True)
+        pd.testing.assert_frame_equal(expected, actual, check_like=True)
+    assert expected.set_index("SK_ID_CURR").loc[1, "PREV_LAST_STATUS"] == "Canceled"
 
 
 # TODO(student)
@@ -74,7 +81,18 @@ def test_join_keeps_applicants_without_history() -> None:
           ``small_bureau()["SK_ID_CURR"]``.
         - ``join_features(app, {"bureau": aggregates})``.
     """
-    pytest.fail("TODO(student): write this test")
+    app = small_application()
+    bureau = small_bureau()
+    joined = join_features(app, {"bureau": aggregate_bureau(bureau)})
+
+    assert len(joined) == len(app)
+    assert joined["SK_ID_CURR"].is_unique
+    assert set(joined["SK_ID_CURR"]) == set(app["SK_ID_CURR"])
+    no_history = app.loc[~app["SK_ID_CURR"].isin(bureau["SK_ID_CURR"]), "SK_ID_CURR"]
+    assert not no_history.empty
+    rows = joined.set_index("SK_ID_CURR").loc[no_history]
+    assert rows["BUREAU_COUNT"].eq(0).all()
+    assert rows["BUREAU_AMT_CREDIT_SUM_MEAN"].isna().all()
 
 
 # TODO(student)
@@ -88,7 +106,11 @@ def test_join_refuses_a_table_that_was_not_aggregated() -> None:
         - ``with pytest.raises(ValueError):`` around ``join_features(app, {"bureau":
           small_bureau()})``.
     """
-    pytest.fail("TODO(student): write this test")
+    app = small_application()
+    bureau = small_bureau()
+    assert bureau["SK_ID_CURR"].duplicated().any()
+    with pytest.raises(ValueError, match="duplicate applicant IDs"):
+        join_features(app, {"bureau": bureau})
 
 
 # TODO(student)
@@ -102,4 +124,19 @@ def test_ratios_are_never_infinite() -> None:
     Hints:
         - ``np.isinf(out[cols].to_numpy(dtype=float)).any()`` is True if any value is inf.
     """
-    pytest.fail("TODO(student): write this test")
+    app = small_application_full()
+    app.loc[0, "AMT_INCOME_TOTAL"] = 0
+    app.loc[1, "AMT_CREDIT"] = 0
+    app.loc[2, "AMT_GOODS_PRICE"] = 0
+    out = add_ratio_features(app)
+    cols = [
+        "CREDIT_INCOME_RATIO", "ANNUITY_INCOME_RATIO",
+        "CREDIT_GOODS_RATIO", "ANNUITY_CREDIT_RATIO",
+    ]
+
+    assert not np.isinf(out[cols].to_numpy(dtype=float)).any()
+    assert out.loc[0, ["CREDIT_INCOME_RATIO", "ANNUITY_INCOME_RATIO"]].isna().all()
+    assert pd.isna(out.loc[1, "ANNUITY_CREDIT_RATIO"])
+    assert pd.isna(out.loc[2, "CREDIT_GOODS_RATIO"])
+    # An implementation returning only missing ratios must not pass.
+    assert out.loc[4, "CREDIT_INCOME_RATIO"] == pytest.approx(2.0)

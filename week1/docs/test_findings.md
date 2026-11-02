@@ -4,17 +4,56 @@ Team: Group 3
 
 ## Test results
 
-Results from `python run.py testreport` on November 2, 2026. These are preliminary counts; the report will be updated after the remaining unit and data tests are implemented.
+Unit and data counts below are from targeted test runs on November 2, 2026. Model counts are from the team's earlier `python run.py testreport` run. Rerun the combined report after pulling these changes to refresh the exported results.
 
 | Kind | Tests | Passed | Failed | Known failures (xfail) | Skipped |
 |---|---|---|---|---|---|
-| Unit | 5 | 1 | 4 | 0 | 0 |
-| Data | 5 | 1 | 4 | 0 | 0 |
+| Unit | 5 | 5 | 0 | 0 | 0 |
+| Data | 5 | 5 | 0 | 0 | 0 |
 | Model | 4 | 2 | 0 | 2 | 0 |
 
 ## Limits we chose, and why
 
-**Unit and data tests:** The four unfinished unit tests and four unfinished data tests are being completed separately. The data-test limits and their justifications need to be added once those tests are implemented and the real feature-table distributions have been checked.
+### Unit and data tests (Yousef)
+
+The four unit-test bodies are implemented; the provided example is unchanged. Temporary,
+in-memory substitutions confirmed that the tests reject an order-dependent tie-break,
+dropped applicants, an accepted raw join, division producing infinity, and ratios that
+are always missing. No production functions were changed for these checks.
+
+The data results use `data/features/features.parquet`: 5,000 rows and 165 columns.
+Rebuilding from the seven recovered sample tables with the current feature code reproduced
+the same values (treating null representations as equivalent), and its applicant IDs match
+the fixed split. These results describe
+this project sample, not all future applicants.
+
+The existing data-test thresholds were inspected against the real table and retained
+without loosening them.
+
+| Test and rule | Observed result | Reason for the limit |
+|---|---|---|
+| `test_one_row_per_applicant`: exactly 5,000 rows, zero duplicate IDs | 5,000 rows; zero duplicates | The project deliberately samples 5,000 applicants. More rows can mean a raw child-table join multiplied applicants; fewer can mean an inner join dropped applicants without history. Uniqueness prevents double counting. This is a fixed-sample contract, not a production population-size limit. |
+| `test_schema`: required columns present and numeric; labels restricted to 0 and 1 | All ten checked columns are present and numeric; labels are 4,596 zeros and 404 ones | IDs, labels, income, credit, age, external score, and all four ratios are required inputs. Text in a numeric column can indicate parsing or upstream schema damage. Binary labels preserve the meaning of default. Numeric dtype is a type check, not proof that values are finite or sensible. |
+| `test_value_ranges`: `DAYS_BIRTH` between -25,550 and -6,570 inclusive | Minimum -25,132; maximum -7,680 (about 68.85 to 21.04 years old) | These are the assignment's approximate 18–70-year bounds using 365 days per year. Negative values mean birth occurred before application. The band allows ages outside this sample's observed extremes while detecting sign errors, implausible dates, and out-of-scope ages. It is a project assumption, not a legal eligibility rule or an exact calendar-age calculation. |
+| `test_value_ranges`: income strictly above zero | Minimum 27,000; maximum 1,350,000; zero nonpositive values | Income is the denominator of two repayment ratios. Zero or negative income is outside this table's assumptions and needs investigation. No upper-income limit was invented from the sample maximum: a large positive income is not automatically a data error. |
+| `test_value_ranges`: every nonmissing `_RATE` and `_SHARE` value in [0, 1] inclusive | All seven checked columns satisfy the bounds | A share is a count divided by its eligible total. Zero and one are valid endpoints; values outside this range indicate faulty aggregation, wrong denominators, or percentages stored on a 0–100 scale. Missing history can legitimately make a share undefined. |
+| `test_missing_values`: zero missing income, credit, birth date, or target | Zero missing in all four columns | These are required application or label fields. Missing values can indicate an incomplete source or a damaged join; an unknown label cannot be treated as a nondefault. The schema test drops missing labels before inspecting their values, so this separate target-null check is essential. |
+| `test_missing_values`: `EXT_SOURCE_2` missing in strictly less than 1% of rows | 12/5,000 = 0.24% missing | This permits limited existing source gaps while flagging a material loss of an important predictor. At this sample size, 49 missing values pass and 50 fail. The ceiling is over four times the observed share and is an operational guardrail, not a statistical confidence bound. Crossing it warrants checking source coverage and model impact. |
+| `test_missing_values`: no column is 100% missing | Zero entirely missing columns; maximum missing share 72.70% | An entirely empty column can indicate a broken source or join and supplies no observed information. A blanket small missingness limit would wrongly reject legitimate sparse credit histories. `CC_UTILIZATION_MEAN` and `CC_UTILIZATION_MAX` each have 3,635 missing values (72.70%); other card summaries have 3,623 (72.46%). No card history and undefined utilization denominators are expected reasons for missing values. This check detects complete loss, not smaller coverage shifts. |
+| `test_default_rate`: between 6% and 10% inclusive | 404/5,000 = 8.08% defaults | The data is expected to have roughly 8% defaults. The band means 300–500 defaults for 5,000 rows, allowing modest variation while catching major sample or label changes. For scale, a simple random sample at 8% has a standard error of about 0.38 percentage points; two percentage points is a broad alert band. Our sampling is stratified, so this is not a formal sampling interval. Changed prevalence can invalidate probability calibration, thresholds, and cost estimates. |
+
+The schema's ten columns are `SK_ID_CURR`, `TARGET`, `AMT_INCOME_TOTAL`, `AMT_CREDIT`,
+`DAYS_BIRTH`, `EXT_SOURCE_2`, `CREDIT_INCOME_RATIO`, `ANNUITY_INCOME_RATIO`,
+`CREDIT_GOODS_RATIO`, and `ANNUITY_CREDIT_RATIO`.
+
+The seven rate/share columns are `PREV_APPROVED_RATE`, `PREV_REFUSED_RATE`,
+`BB_LATE_SHARE`, `POS_LATE_SHARE`, `POS_COMPLETED_SHARE`, `INST_LATE_SHARE`, and
+`INST_UNDERPAID_SHARE`. Observed maxima are 1 except `BB_LATE_SHARE` (0.984615)
+and `POS_LATE_SHARE` (0.959596); every observed minimum is 0.
+
+
+### Model-test limits
+
 
 **Minimum AUC (0.70):** Our Week 1 logistic regression achieved about 0.710 AUC. We use 0.70 as a minimum quality floor to catch significant regressions in ranking performance.
 
