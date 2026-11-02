@@ -1,0 +1,102 @@
+{
+  "run_id": "43518c3720e342ff9786f4646c538d49",
+  "model": {
+    "model": "hist_gradient_boosting",
+    "params": {
+      "learning_rate": 0.011348534470417258,
+      "max_iter": 350,
+      "max_leaf_nodes": 4,
+      "min_samples_leaf": 113,
+      "l2_regularization": 0.002453909931798047,
+      "max_features": 0.31243600539608535
+    }
+  },
+  "calibration": "isotonic",
+  "threshold": 0.085,
+  "costs": {
+    "approve_defaulter": 10,
+    "reject_good": 1
+  },
+  "features": [
+    "AMT_GOODS_PRICE",
+    "DAYS_BIRTH",
+    "DAYS_EMPLOYED",
+    "OWN_CAR_AGE",
+    "FLAG_PHONE",
+    "EXT_SOURCE_1",
+    "EXT_SOURCE_2",
+    "EXT_SOURCE_3",
+    "ELEVATORS_AVG",
+    "YEARS_BEGINEXPLUATATION_MEDI",
+    "BUREAU_DAYS_CREDIT_MAX",
+    "PREV_REFUSED_RATE",
+    "PREV_AMT_CREDIT_MEAN",
+    "POS_COMPLETED_SHARE",
+    "INST_LATE_SHARE",
+    "CC_DRAWINGS_MEAN",
+    "CREDIT_INCOME_RATIO",
+    "CODE_GENDER",
+    "NAME_EDUCATION_TYPE",
+    "NAME_HOUSING_TYPE"
+  ],
+  "n_features": 20,
+  "cv_auc_mean": 0.7594986171307988,
+  "cv_auc_std": 0.02292696385066077,
+  "valid": {
+    "valid_auc": 0.7457717056919088,
+    "valid_auc_ci_low": 0.6927691761731588,
+    "valid_auc_ci_high": 0.7999739682926796,
+    "valid_pr_auc": 0.21249635907885028,
+    "valid_ks": 0.3870551726917342,
+    "cost_at_threshold": 0.524,
+    "cost_at_0.5": 0.801,
+    "cost_approve_all": 0.81,
+    "cost_reject_all": 0.919,
+    "reject_rate": 0.253
+  },
+  "calibration_valid": {
+    "before": {
+      "brier": 0.06939112809247112,
+      "mean_predicted": 0.07996225268042463,
+      "default_rate": 0.081
+    },
+    "after": {
+      "brier": 0.06891518915072171,
+      "mean_predicted": 0.08125911748998765,
+      "default_rate": 0.081
+    }
+  },
+  "latency_p50_ms": 29.42143749896786,
+  "latency_p95_ms": 31.963381250807288,
+  "model_size_kb": 211.9580078125,
+  "compare_to": {
+    "run": "tree_tuned",
+    "spec": {
+      "model": "decision_tree",
+      "params": {
+        "max_depth": 5,
+        "min_samples_leaf": 50
+      }
+    },
+    "n_features": 164,
+    "valid_auc": 0.7026222813310227,
+    "valid_auc_ci_low": 0.6449916938193654,
+    "valid_auc_ci_high": 0.7558285869565218,
+    "valid_pr_auc": 0.1589100068049007,
+    "valid_ks": 0.33933825011082897,
+    "latency_p50_ms": 5.029271000239532,
+    "latency_p95_ms": 5.13209549972089,
+    "model_size_kb": 17.69140625,
+    "auc_diff": 0.04314942436088609,
+    "auc_diff_ci": [
+      -0.013629057423554667,
+      0.10295257956383773
+    ]
+  },
+  "registered": {
+    "name": "credit-risk",
+    "version": "1",
+    "alias": "staging",
+    "uri": "models:/credit-risk@staging"
+  }
+}
