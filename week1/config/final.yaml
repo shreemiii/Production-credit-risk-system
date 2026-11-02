@@ -29,3 +29,25 @@ registry:
   alias: staging
 
 compare_to: tree_tuned    # the Monday run your modeling report compares against
+
+features:
+  - EXT_SOURCE_2
+  - EXT_SOURCE_3
+  - EXT_SOURCE_1
+  - DAYS_EMPLOYED
+  - PREV_REFUSED_RATE
+  - OWN_CAR_AGE
+  - POS_COMPLETED_SHARE
+  - CC_DRAWINGS_MEAN
+  - AMT_GOODS_PRICE
+  - DAYS_BIRTH
+  - NAME_EDUCATION_TYPE
+  - INST_LATE_SHARE
+  - BUREAU_DAYS_CREDIT_MAX
+  - CODE_GENDER
+  - FLAG_PHONE
+  - YEARS_BEGINEXPLUATATION_MEDI
+  - CREDIT_INCOME_RATIO
+  - NAME_HOUSING_TYPE
+  - PREV_AMT_CREDIT_MEAN
+  - ELEVATORS_AVG
