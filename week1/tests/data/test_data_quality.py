@@ -1,3 +1,4 @@
+
 """Data tests: does the real feature table look the way the model assumes?
 
 The Week 2 validation runs once, when the feature table is built. These tests check the
@@ -39,7 +40,27 @@ def test_schema(features: pd.DataFrame) -> None:
         - ``set(features["TARGET"].unique()) <= {0, 1}``.
         - ``pd.api.types.is_numeric_dtype(features[col])``.
     """
-    pytest.fail("TODO(student): write this test")
+    columns = [
+        "SK_ID_CURR",
+        "TARGET",
+        "AMT_INCOME_TOTAL",
+        "AMT_CREDIT",
+        "DAYS_BIRTH",
+        "EXT_SOURCE_2",
+        "CREDIT_INCOME_RATIO",
+        "ANNUITY_INCOME_RATIO",
+        "CREDIT_GOODS_RATIO",
+        "ANNUITY_CREDIT_RATIO",
+    ]
+
+    for col in columns:
+        assert col in features.columns, f"Missing required column: {col}"
+        assert pd.api.types.is_numeric_dtype(features[col]), (
+            f"{col} should contain numeric values"
+        )
+
+    labels = set(features["TARGET"].dropna().unique())
+    assert labels <= {0, 1}, f"TARGET contains invalid labels: {labels}"
 
 
 # TODO(student)
@@ -55,7 +76,25 @@ def test_value_ranges(features: pd.DataFrame) -> None:
         - ``[c for c in features.columns if c.endswith(("_RATE", "_SHARE"))]``.
         - ``s.dropna().between(0, 1).all()`` ignores missing values.
     """
-    pytest.fail("TODO(student): write this test")
+    ages = features["DAYS_BIRTH"]
+
+    assert ages.between(-70 * 365, -18 * 365).all(), (
+        "DAYS_BIRTH contains applicants outside the 18-70 age range"
+    )
+
+    income = features["AMT_INCOME_TOTAL"]
+    assert (income > 0).all(), "AMT_INCOME_TOTAL contains zero or negative income"
+
+    columns = [
+        c for c in features.columns
+        if c.endswith(("_RATE", "_SHARE"))
+    ]
+
+    for col in columns:
+        values = features[col].dropna()
+        assert values.between(0, 1).all(), (
+            f"{col} contains values outside the 0-1 range"
+        )
 
 
 # TODO(student)
@@ -70,7 +109,27 @@ def test_missing_values(features: pd.DataFrame) -> None:
         - ``features[col].isna().mean()`` is the share missing.
         - Look at ``features.isna().mean().sort_values()`` before you pick limits.
     """
-    pytest.fail("TODO(student): write this test")
+    required = [
+        "AMT_INCOME_TOTAL",
+        "AMT_CREDIT",
+        "DAYS_BIRTH",
+        "TARGET",
+    ]
+
+    for col in required:
+        missing = int(features[col].isna().sum())
+        assert missing == 0, f"{col} has {missing} missing values"
+
+    missing_source = features["EXT_SOURCE_2"].isna().mean()
+
+    assert missing_source < 0.01, (
+        f"EXT_SOURCE_2 is {missing_source:.2%} missing, expected less than 1%"
+    )
+
+    missing_rates = features.isna().mean()
+    empty = missing_rates[missing_rates == 1].index.tolist()
+
+    assert not empty, f"Completely missing columns: {empty}"
 
 
 # TODO(student)
@@ -80,4 +139,9 @@ def test_default_rate(features: pd.DataFrame) -> None:
     A rate far from 8% means the sample or the labels changed: every model, threshold, and
     cost would then be wrong. Pick a band (for example 6% to 10%) and explain the choice.
     """
-    pytest.fail("TODO(student): write this test")
+    rate = features["TARGET"].mean()
+
+    assert np.isfinite(rate), "Default rate is not a finite number"
+    assert 0.06 <= rate <= 0.10, (
+        f"Default rate is {rate:.2%}, expected between 6% and 10%"
+    )
