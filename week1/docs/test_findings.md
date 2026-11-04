@@ -4,22 +4,18 @@ Team: Group 3
 
 ## Test results
 
-Results from `python run.py testreport` on November 4, 2026. All 14 tests ran:
-12 passed and 2 were strict expected failures. These model results are **provisional**:
-the registered Week 3 model was unavailable in this workspace, so the provided loader
-used `final.yaml model, trained now (not registered)`, an uncalibrated fallback with
-threshold 0.09 and all available features. They do not verify `credit-risk@staging`.
-The registered-model findings below remain the team's previously recorded observations.
+The latest reports were regenerated in the team checkout on November 4, 2026 at
+20:10:45 UTC, from commit `1b7ab2e`, and pushed in commit
+`214d9e5c38489c9692f86f1129a377dac8560ac9`. All 14 tests ran:
+12 passed, 2 were strict expected failures, and none were skipped.
 
-The report was generated from the source snapshot at commit
-`8cc44bafdb2108a085e19411f0d4a3684fb31920`, using the real feature table
-(data version `9fb9955ad0ed`). Its generated commit field is `no-git` because the snapshot
-was retrieved without a local Git checkout. No report fields or test outcomes were edited.
-Before treating this as the final submission report, rerun `python run.py testreport`
-and `python run.py check` in the team checkout containing the registered model's
-`mlflow.db` and `mlruns/` artifacts.
+These files supersede the earlier workspace reports whose commit field was `no-git`.
+The generated report does not record the model source or registry version, so its
+counts alone cannot establish whether the registered model or the provided fallback
+was loaded. The registered-model observations below are preserved from the team's
+earlier investigation; the separate fallback diagnostic is historical evidence only.
 
-The November 4 full checker passed sample, unit tests, data tests, model tests run,
+The earlier workspace run of the November 4 full checker passed sample, unit tests, data tests, model tests run,
 test findings, model decided, and test report. It failed the four outstanding Wednesday
 requirements: pipeline steps, gate thresholds, gate metrics, and CI report. Lint passed.
 No tests, checker rules, or thresholds were weakened to obtain these results.
