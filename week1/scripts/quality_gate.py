@@ -55,7 +55,43 @@ def gate_failures(
     Returns:
         The reasons, in the order above. Check every rule: do not stop at the first failure.
     """
-    raise NotImplementedError("TODO(student): one reason per broken rule")
+    failures = []
+
+    auc = metrics["valid_auc"]
+    cost = metrics["cost_at_threshold"]
+    failed_tests = metrics["model_tests"]["failed"]
+
+    min_auc = thresholds["min_auc"]
+    max_cost = thresholds["max_cost"]
+    max_drop = thresholds["max_auc_drop"]
+    allowed_failures = thresholds["allow_failing_model_tests"]
+
+    if auc < min_auc:
+        failures.append(
+            f"validation AUC {auc:.3f} is below the floor {min_auc:.3f}"
+        )
+
+    if cost > max_cost:
+        failures.append(
+            f"cost {cost:.3f} exceeds the maximum {max_cost:.3f}"
+        )
+
+    minimum_allowed_auc = baseline_auc - max_drop
+    if auc < minimum_allowed_auc:
+        failures.append(
+            f"validation AUC {auc:.3f} is below the allowed limit "
+            f"{minimum_allowed_auc:.3f} (registered AUC {baseline_auc:.3f}, "
+            f"maximum drop {max_drop:.3f})"
+        )
+
+    if failed_tests > allowed_failures:
+        failures.append(
+            f"{failed_tests} model tests failed, exceeding the "
+            f"allowed {allowed_failures}"
+        )
+
+    return failures
+
 
 
 # PROVIDED
