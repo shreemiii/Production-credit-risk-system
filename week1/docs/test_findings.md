@@ -4,7 +4,21 @@ Team: Group 3
 
 ## Test results
 
-Unit and data counts below are from targeted test runs on November 2, 2026. Model counts are from the team's earlier `python run.py testreport` run. Rerun the combined report after pulling these changes to refresh the exported results.
+The latest reports were regenerated in the team checkout on November 4, 2026 at
+20:10:45 UTC, from commit `1b7ab2e`, and pushed in commit
+`214d9e5c38489c9692f86f1129a377dac8560ac9`. All 14 tests ran:
+12 passed, 2 were strict expected failures, and none were skipped.
+
+These files supersede the earlier workspace reports whose commit field was `no-git`.
+The generated report does not record the model source or registry version, so its
+counts alone cannot establish whether the registered model or the provided fallback
+was loaded. The registered-model observations below are preserved from the team's
+earlier investigation; the separate fallback diagnostic is historical evidence only.
+
+The earlier workspace run of the November 4 full checker passed sample, unit tests, data tests, model tests run,
+test findings, model decided, and test report. It failed the four outstanding Wednesday
+requirements: pipeline steps, gate thresholds, gate metrics, and CI report. Lint passed.
+No tests, checker rules, or thresholds were weakened to obtain these results.
 
 | Kind | Tests | Passed | Failed | Known failures (xfail) | Skipped |
 |---|---|---|---|---|---|
@@ -73,7 +87,7 @@ and `POS_LATE_SHARE` (0.959596); every observed minimum is 0.
 
 - **Does it matter for the lender?** Yes. The lender's policy requires gender not to affect risk decisions. Changing approval outcomes for 29 otherwise identical applicants is a significant problem.
 
-**Decision:** We retained the current registered model temporarily and marked this test as a known failure using `@pytest.mark.xfail(strict=True, reason="see docs/test_findings.md")`, pending team confirmation. This keeps the failure visible without treating it as a passing model behavior. We recommend removing `CODE_GENDER`, retraining and recalibrating, and rerunning the model tests. The failure will be considered resolved only when the corrected model passes the gender-invariance test and its lending decisions are re-evaluated.
+**Decision:** We retained the current registered model temporarily and marked this test as a known failure using `@pytest.mark.xfail(strict=True, reason="see docs/test_findings.md")`. For this coursework checkpoint, the decision is to retain the failure visibly while remediation remains outstanding; this does not approve the model for production lending. This keeps the failure visible without treating it as a passing model behavior. We recommend removing `CODE_GENDER`, retraining and recalibrating, and rerunning the model tests. The failure will be considered resolved only when the corrected model passes the gender-invariance test and its lending decisions are re-evaluated.
 ### test_higher_income_does_not_raise_risk
 
 - **What failed:** The official test initially raised `KeyError: 'AMT_INCOME_TOTAL'`. Our Week 3 feature pruning retained `CREDIT_INCOME_RATIO` but removed columns required by the provided `change_income()` helper.
@@ -86,4 +100,20 @@ and `POS_LATE_SHARE` (0.959596); every observed minimum is 0.
 
 - **Does it matter for the lender?** Yes. A 50% increase in income should not make an otherwise identical applicant riskier under the stated requirement. The model sometimes violates that expectation and can change lending outcomes.
 
-**Decision:** We updated the test setup to retrieve the income and loan-amount inputs needed by the provided `change_income()` helper, without modifying the registered model. The test now reaches its assertion and confirms 11 directional violations. We marked it as a known failure using `@pytest.mark.xfail(strict=True, reason="see docs/test_findings.md")`, pending team confirmation. We recommend investigating the non-monotonic behavior and retraining or constraining the model before production use. The strict expected-failure marker should be removed once the model satisfies the requirement.
+**Decision:** We updated the test setup to retrieve the income and loan-amount inputs needed by the provided `change_income()` helper, without modifying the registered model. The test now reaches its assertion and confirms 11 directional violations. We marked it as a known failure using `@pytest.mark.xfail(strict=True, reason="see docs/test_findings.md")`. For this coursework checkpoint, the decision is to retain the failure visibly while remediation remains outstanding; this does not approve the model for production lending. We recommend investigating the non-monotonic behavior and retraining or constraining the model before production use. The strict expected-failure marker should be removed once the model satisfies the requirement.
+
+## November 4 fallback-model diagnostic
+
+Running `python -m pytest tests/model --runxfail -q` gave two passes and the two
+expected assertion failures. This confirmed that the markers are not hiding a missing
+file or setup error in this run:
+
+- `test_gender_does_not_change_the_score`: largest absolute change 0.029872,
+  exceeding the unchanged 0.01 tolerance.
+- `test_higher_income_does_not_raise_risk`: 69 applicants had increases above 0.001;
+  the largest increase was 0.029202 after increasing income by 50% and recomputing ratios.
+
+These numbers belong only to the uncalibrated fallback model, not the registered model
+analyzed above. Keep both strict expected-failure markers and their existing tolerances.
+Restore the registered artifacts and rerun before updating the registered-model findings
+or making a deployment decision.
