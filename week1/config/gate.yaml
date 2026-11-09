@@ -3,7 +3,7 @@
 # TODO(student): replace every null with your number, and justify each one in
 # docs/ci_report.md. The gate refuses to pass while a threshold is null.
 
-min_auc: 0.70            # validation ROC-AUC must be at least this (a floor every
+min_auc: 0.99            # validation ROC-AUC must be at least this (a floor every
                          # reasonable model clears)
 max_cost: 0.70           # expected cost per applicant at your threshold must be at most
                          # this (approving everyone costs about 0.81)
