@@ -23,7 +23,6 @@ RATIOS = {
     "ANNUITY_CREDIT_RATIO": ("AMT_ANNUITY", "AMT_CREDIT"),
 }
 
-
 class UnknownApplicant(LookupError):
     """The requested SK_ID_CURR is not in the feature store."""
 
@@ -69,4 +68,19 @@ def build_features(request: PredictRequest, store: pd.DataFrame,
         - Why recompute the ratios? Remember Week 4's ``change_income``: a new income with
           the old CREDIT_INCOME_RATIO describes an applicant who cannot exist.
     """
-    raise NotImplementedError("TODO(student): look up the applicant and apply the overrides")
+    applicant_id = request.SK_ID_CURR
+    if applicant_id not in store.index:
+        raise UnknownApplicant(f"Applicant {applicant_id} not found")
+
+    row = store.loc[[applicant_id]].copy()
+    updated = False
+    for name in OVERRIDABLE:
+        value = getattr(request, name)
+        if value is not None:
+            row[name] = value
+            updated = True
+
+    if updated:
+        row = recompute_ratios(row)
+
+    return row.loc[:, features]

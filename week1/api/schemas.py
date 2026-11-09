@@ -36,6 +36,9 @@ class PredictRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     SK_ID_CURR: int = Field(gt=0, description="The applicant's id")
+    AMT_INCOME_TOTAL: float | None = Field(default=None, gt=0, description="Yearly income")
+    AMT_CREDIT: float | None = Field(default=None, gt=0, description="Loan amount")
+    AMT_ANNUITY: float | None = Field(default=None, gt=0, description="Yearly repayment")
 
 
 # PROVIDED
