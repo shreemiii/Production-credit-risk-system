@@ -2,7 +2,7 @@
 
 Team: Production Credit Risk System — Team 38
 
-**Live base URL:** Pending Cloud Run deployment.
+**Live base URL:** (https://credit-risk-api-1007537952235.us-central1.run.app)
 
 **Local Docker URL:** http://127.0.0.1:8080
 
@@ -147,39 +147,30 @@ Response — HTTP 404:
 }
 ```
 
+
 ## Response times
 
-**Measurement environment:** Local Docker container
+**Measurement environment:** Google Cloud Run (us-central1)
 
-**Measured at (UTC):** 2026-11-15T03:25:39+00:00
+**Live service URL:** https://credit-risk-api-1007537952235.us-central1.run.app
 
-**Live Cloud Run measurements:** Pending deployment.
+We tested the deployed API by sending 100 prediction requests.
 
 | Metric | Result |
 |---|---:|
 | Successful timed requests | 100 |
-| First request | 151.60 ms |
-| p50 latency | 11.66 ms |
-| p95 latency | 47.19 ms |
-| Maximum latency | 204.30 ms |
-| Mean latency | 18.98 ms |
+| First request | 604 ms |
+| p50 latency | 67 ms |
+| p95 latency | 76 ms |
+| Maximum latency | 84 ms |
 | Errors | 0 |
 
-The first local request is not a verified Cloud Run cold start.
+The first request took longer than the others and may have included
+a cold start. The p50 shows the typical response time, while the p95
+shows the response time within which 95% of requests completed.
 
-The p50 measures typical response time: half of the measured
-requests completed within that duration. The p95 measures
-the time within which 95% of requests completed.
+All 100 timed requests were successful, with no errors.
 
-For an applicant waiting on a loan application screen,
-both values matter. A low median provides a responsive
-typical experience, while a low p95 means most users avoid
-noticeably slower predictions. Cloud Run cold starts may
-increase latency when the service has scaled to zero.
-
-Before submission, replace this section with measurements
-from the deployed Cloud Run service after an idle period,
-and record the actual measurement date and URL.
 
 ## Online or batch scoring?
 
