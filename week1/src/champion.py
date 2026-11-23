@@ -75,7 +75,40 @@ def decide(comparison: dict[str, Any], failures: list[str],
     The recent slice decides because it looks like the applicants the model will see next;
     the validation slice is already guarded by the gate.
     """
-    raise NotImplementedError("TODO(student): promote or keep, with the reasons")
+    # If the quality gate fails, keep the existing champion.
+    if failures:
+        return {
+            "decision": "keep",
+            "reasons": [f"gate: {failure}" for failure in failures],
+        }
+
+    # Compare the two models on the recent production holdout.
+    recent = comparison["recent"]
+    champion_cost = float(recent["champion"]["cost"])
+    challenger_cost = float(recent["challenger"]["cost"])
+    tolerance = float(rule["max_cost_increase"])
+
+    # Keep the champion if the challenger exceeds the allowed cost.
+    if challenger_cost > champion_cost + tolerance:
+        return {
+            "decision": "keep",
+            "reasons": [
+                f"Recent slice: challenger cost {challenger_cost:.3f} "
+                f"exceeds champion cost {champion_cost:.3f} "
+                f"plus tolerance {tolerance:.3f}."
+            ],
+        }
+
+    # Otherwise, the challenger qualifies for promotion.
+    return {
+        "decision": "promote",
+        "reasons": [
+            f"Quality gate passed. Recent slice: challenger cost "
+            f"{challenger_cost:.3f}, champion cost {champion_cost:.3f}, "
+            f"allowed increase {tolerance:.3f}."
+        ],
+    }
+
 
 
 # PROVIDED
