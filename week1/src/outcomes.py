@@ -69,7 +69,26 @@ def performance(y_true: ArrayLike, scores: ArrayLike, threshold: float,
         - Convert with ``np.asarray`` first; ``approved = scores < threshold``.
         - ``y[approved].mean()`` is the bad rate among the approved.
     """
-    raise NotImplementedError("TODO(student): the real performance on known outcomes")
+    
+    y = np.asarray(y_true)
+    p = np.asarray(scores)
+
+    n = len(y)
+    approved = p < threshold
+
+    auc = float(roc_auc_score(y, p)) if len(np.unique(y)) > 1 else float("nan")
+
+    return {
+        "n": int(n),
+        "n_default": int(y.sum()),
+        "default_rate": float(y.mean()),
+        "mean_score": float(p.mean()),
+        "auc": auc,
+        "cost": float(expected_cost(y, p, threshold, costs)),
+        "approval_rate": float(approved.mean()),
+        "bad_rate_approved": float(y[approved].mean()) if approved.any() else float("nan"),
+    }
+
 
 
 # PROVIDED
