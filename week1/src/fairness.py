@@ -70,7 +70,26 @@ def group_table(frame: pd.DataFrame, group_col: str) -> pd.DataFrame:
           and ``pd.DataFrame(list_of_dicts)``.
         - ``rows.loc[rows["y"] == 1, "reject"].mean()`` is the TPR (NaN for no rows).
     """
-    raise NotImplementedError("TODO(student): the per-group table")
+    records = []
+
+    for group, rows in frame.groupby(group_col):
+        n = len(rows)
+        defaults = rows[rows["y"] == 1]
+        good = rows[rows["y"] == 0]
+
+        records.append({
+            "group": group,
+            "n": n,
+            "n_default": len(defaults),
+            "n_good": len(good),
+            "approval_rate": float((~rows["reject"]).mean()),
+            "default_rate": float((rows["y"] == 1).mean()),
+            "mean_score": float(rows["p"].mean()),
+            "tpr": float(defaults["reject"].mean()) if len(defaults) else np.nan,
+            "fpr": float(good["reject"].mean()) if len(good) else np.nan,
+        })
+
+    return pd.DataFrame(records).sort_values("group").reset_index(drop=True)
 
 
 # PROVIDED

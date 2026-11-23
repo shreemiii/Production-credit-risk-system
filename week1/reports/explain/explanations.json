@@ -1,0 +1,76 @@
+{
+  "model_version": "1",
+  "threshold": 0.085,
+  "data": "validation set",
+  "n": 1000,
+  "base_value_log_odds": -2.6618,
+  "global_top": [
+    "EXT_SOURCE_2",
+    "EXT_SOURCE_3",
+    "EXT_SOURCE_1",
+    "DAYS_EMPLOYED",
+    "INST_LATE_SHARE",
+    "PREV_REFUSED_RATE",
+    "OWN_CAR_AGE",
+    "NAME_EDUCATION_TYPE",
+    "POS_COMPLETED_SHARE",
+    "YEARS_BEGINEXPLUATATION_MEDI",
+    "BUREAU_DAYS_CREDIT_MAX",
+    "CC_DRAWINGS_MEAN",
+    "DAYS_BIRTH",
+    "CODE_GENDER",
+    "AMT_GOODS_PRICE",
+    "CREDIT_INCOME_RATIO",
+    "ELEVATORS_AVG",
+    "FLAG_PHONE",
+    "NAME_HOUSING_TYPE",
+    "PREV_AMT_CREDIT_MEAN"
+  ],
+  "applicants": [
+    {
+      "SK_ID_CURR": 386641,
+      "kind": "riskiest",
+      "probability": 1.0,
+      "decision": "reject",
+      "reasons": [
+        "external credit score 2 is 0.0229 (typical: 0.564) (raises the risk score by 0.94)",
+        "external credit score 3 is 0.229 (typical: 0.532) (raises the risk score by 0.44)",
+        "share of instalments paid late is 0.415 (typical: 0.0189) (raises the risk score by 0.29)"
+      ],
+      "lowered_risk": [
+        "education is Higher education (typical: Secondary / secondary special)",
+        "gender is F (typical: F)"
+      ]
+    },
+    {
+      "SK_ID_CURR": 426480,
+      "kind": "typical decline",
+      "probability": 0.1557,
+      "decision": "reject",
+      "reasons": [
+        "external credit score 3 is 0.166 (typical: 0.532) (raises the risk score by 0.77)",
+        "share of earlier applications refused is 0.4 (typical: 0) (raises the risk score by 0.26)",
+        "time in the current job is 4.0 years (typical: 4.4 years) (raises the risk score by 0.11)"
+      ],
+      "lowered_risk": [
+        "external credit score 2 is 0.586 (typical: 0.564)",
+        "the age of the applicant's car is 14 (typical: 9)"
+      ]
+    },
+    {
+      "SK_ID_CURR": 275051,
+      "kind": "borderline",
+      "probability": 0.1,
+      "decision": "reject",
+      "reasons": [
+        "external credit score 3 is 0.275 (typical: 0.532) (raises the risk score by 0.39)",
+        "share of earlier applications refused is 0.625 (typical: 0) (raises the risk score by 0.22)",
+        "average monthly card withdrawals is 6.21e+04 (typical: 4.26e+03) (raises the risk score by 0.16)"
+      ],
+      "lowered_risk": [
+        "the age of the applicant's car is 14 (typical: 9)",
+        "external credit score 2 is 0.6 (typical: 0.564)"
+      ]
+    }
+  ]
+}

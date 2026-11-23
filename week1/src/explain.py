@@ -134,7 +134,17 @@ def explain_applicant(contributions: pd.Series, values: pd.Series, typical: pd.S
     Hints:
         - ``contributions[contributions > 0].sort_values(ascending=False).head(n)``
     """
-    raise NotImplementedError("TODO(student): the applicant's top reasons")
+    positive = contributions[contributions > 0]
+    top = positive.sort_values(ascending=False).head(n)
+
+    reasons = []
+    for feature, contribution in top.items():
+        description = describe(feature, values[feature], typical[feature])
+        reasons.append(
+            f"{description} (raises the risk score by {contribution:.2f})"
+        )
+
+    return reasons
 
 
 # PROVIDED
