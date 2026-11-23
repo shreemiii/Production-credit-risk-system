@@ -2,7 +2,7 @@
 
 Owner: Yousef. Project: credit-risk-group3-513720. Region: us-central1.
 
-This adapts the provided docs/cloud_shell_week7.md on the Week 7 starter branch to our existing resources. These are instructions to execute, not evidence that deployment or rollback has already happened. Keep the three original bucket-root objects.
+This adapts the provided docs/cloud_shell_week7.md on the Week 7 starter branch to our existing resources. The command blocks describe the procedure; the execution-evidence section records the results supplied by Yousef. Keep the three original bucket-root objects.
 
 ## Step 6: give the current champion its own folder
 
@@ -68,6 +68,19 @@ The duration includes the update and verification calls. Save the actual measure
 
 The checkout containing the real MLflow registry, model exports and live production evidence must run python run.py evaluate and python run.py check --stage mon. Each required line must pass. Merge implementation and evidence through pull requests. Record the actual decision, version-folder path, Cloud Run revision, model-info response, rollback duration, and checker output. Do not commit models/, data/, mlflow.db, mlruns/, credentials, or raw prediction logs.
 
+## Execution evidence — November 23, 2026
+
+Yousef executed the Cloud Shell commands and supplied screenshots of their output.
+
+- Step 6 copied all three root bundle files into `gs://credit-risk-models-group3-513720/models/v1/`; the listing showed `model.joblib`, `model_info.json` and `feature_store.parquet`.
+- Cloud Run deployed revision `credit-risk-api-00004-l47`, serving 100% of traffic. The subsequent model-info response showed version 1.
+- The timed rollback-practice command deployed revision `credit-risk-api-00005-ckw`, serving 100% of traffic.
+- The post-update model-info response passed the command's version-1 assertion. It reported threshold 0.085, 20 features, validation AUC 0.7457717056919088, data version `9fb9955ad0ed`, and bundle export time `2026-11-16T20:12:04+00:00`.
+- The terminal printed **Rollback practice and verification: 29 seconds**. This measured command included the services update and model-info assertion; it did not include a separate health probe.
+- Service URL: https://credit-risk-api-1007537952235.us-central1.run.app
+
+This was the course-permitted same-version restart exercise using models/v1/, not a version-2-to-version-1 rollback. No challenger promotion or local MLflow alias rollback is established by these screenshots.
+
 ## Current handoff
 
-Prepared from the provided Week 7 procedure and existing Group 3 resource names. Cloud mutations and rollback timing have not been performed from this workspace. Promotion is pending the generated comparison decision and, if promoted, the matching exported challenger bundle.
+Step 6 and the cloud same-version rollback practice are evidenced above. The team's generated comparison decision, any required promotion and matching bundle, local registry/export alignment, and final Monday checker remain to be verified.
