@@ -1,0 +1,250 @@
+{
+  "source": "cloud_logging",
+  "logs_file": "data\\logs\\predictions.json",
+  "records": 1802,
+  "model_versions": [
+    "1"
+  ],
+  "reference": {
+    "rows": 4000,
+    "what": "X_train, the model's training rows",
+    "valid_approval_rate": 0.734,
+    "valid_mean_score": 0.0833
+  },
+  "thresholds": {
+    "psi_moderate": 0.1,
+    "psi_major": 0.25
+  },
+  "batches": {
+    "1": {
+      "requests": 885,
+      "first": "2026-11-16T20:47:34.030688+00:00",
+      "last": "2026-11-16T20:48:06.984771+00:00",
+      "approval_rate": 0.7107,
+      "mean_score": 0.0922,
+      "score_psi": 0.0136,
+      "features_major": 0,
+      "features_moderate": 0,
+      "top": [
+        {
+          "feature": "YEARS_BEGINEXPLUATATION_MEDI",
+          "psi": 0.037,
+          "ks_stat": 0.0631,
+          "missing_ref": 0.506,
+          "missing_cur": 0.4983,
+          "mean_ref": 0.9767,
+          "mean_cur": 0.9769,
+          "level": "none"
+        },
+        {
+          "feature": "DAYS_EMPLOYED",
+          "psi": 0.0261,
+          "ks_stat": 0.0578,
+          "missing_ref": 0.1795,
+          "missing_cur": 0.1661,
+          "mean_ref": -2292.5198,
+          "mean_cur": -2486.832,
+          "level": "none"
+        },
+        {
+          "feature": "AMT_GOODS_PRICE",
+          "psi": 0.0219,
+          "ks_stat": 0.0508,
+          "missing_ref": 0.0005,
+          "missing_cur": 0.0011,
+          "mean_ref": 551157.1681,
+          "mean_cur": 529863.9485,
+          "level": "none"
+        },
+        {
+          "feature": "CC_DRAWINGS_MEAN",
+          "psi": 0.0214,
+          "ks_stat": 0.1089,
+          "missing_ref": 0.7255,
+          "missing_cur": 0.7141,
+          "mean_ref": 14142.878,
+          "mean_cur": 17946.3969,
+          "level": "none"
+        },
+        {
+          "feature": "DAYS_BIRTH",
+          "psi": 0.0199,
+          "ks_stat": 0.0477,
+          "missing_ref": 0.0,
+          "missing_cur": 0.0,
+          "mean_ref": -15933.838,
+          "mean_cur": -16009.2395,
+          "level": "none"
+        },
+        {
+          "feature": "EXT_SOURCE_1",
+          "psi": 0.0167,
+          "ks_stat": 0.045,
+          "missing_ref": 0.57,
+          "missing_cur": 0.5446,
+          "mean_ref": 0.5003,
+          "mean_cur": 0.5095,
+          "level": "none"
+        },
+        {
+          "feature": "EXT_SOURCE_3",
+          "psi": 0.0113,
+          "ks_stat": 0.0278,
+          "missing_ref": 0.1995,
+          "missing_cur": 0.1887,
+          "mean_ref": 0.5113,
+          "mean_cur": 0.5053,
+          "level": "none"
+        },
+        {
+          "feature": "CREDIT_INCOME_RATIO",
+          "psi": 0.0098,
+          "ks_stat": 0.0379,
+          "missing_ref": 0.0,
+          "missing_cur": 0.0,
+          "mean_ref": 4.0392,
+          "mean_cur": 3.8758,
+          "level": "none"
+        },
+        {
+          "feature": "OWN_CAR_AGE",
+          "psi": 0.009,
+          "ks_stat": 0.0573,
+          "missing_ref": 0.658,
+          "missing_cur": 0.6678,
+          "mean_ref": 12.3099,
+          "mean_cur": 12.551,
+          "level": "none"
+        },
+        {
+          "feature": "PREV_AMT_CREDIT_MEAN",
+          "psi": 0.0068,
+          "ks_stat": 0.0145,
+          "missing_ref": 0.0495,
+          "missing_cur": 0.0475,
+          "mean_ref": 168820.9804,
+          "mean_cur": 165212.8968,
+          "level": "none"
+        }
+      ]
+    },
+    "2": {
+      "requests": 916,
+      "first": "2026-11-16T20:48:12.361777+00:00",
+      "last": "2026-11-16T20:48:43.760482+00:00",
+      "approval_rate": 0.6867,
+      "mean_score": 0.0919,
+      "score_psi": 0.013,
+      "features_major": 1,
+      "features_moderate": 1,
+      "top": [
+        {
+          "feature": "EXT_SOURCE_3",
+          "psi": 0.5284,
+          "ks_stat": 0.0392,
+          "missing_ref": 0.1995,
+          "missing_cur": 0.5317,
+          "mean_ref": 0.5113,
+          "mean_cur": 0.5062,
+          "level": "major"
+        },
+        {
+          "feature": "CREDIT_INCOME_RATIO",
+          "psi": 0.2456,
+          "ks_stat": 0.2046,
+          "missing_ref": 0.0,
+          "missing_cur": 0.0,
+          "mean_ref": 4.0392,
+          "mean_cur": 5.745,
+          "level": "moderate"
+        },
+        {
+          "feature": "EXT_SOURCE_2",
+          "psi": 0.0167,
+          "ks_stat": 0.0402,
+          "missing_ref": 0.0022,
+          "missing_cur": 0.0,
+          "mean_ref": 0.5091,
+          "mean_cur": 0.5033,
+          "level": "none"
+        },
+        {
+          "feature": "NAME_HOUSING_TYPE",
+          "psi": 0.0162,
+          "ks_stat": NaN,
+          "missing_ref": 0.0,
+          "missing_cur": 0.0,
+          "mean_ref": NaN,
+          "mean_cur": NaN,
+          "level": "none"
+        },
+        {
+          "feature": "OWN_CAR_AGE",
+          "psi": 0.0158,
+          "ks_stat": 0.0717,
+          "missing_ref": 0.658,
+          "missing_cur": 0.6343,
+          "mean_ref": 12.3099,
+          "mean_cur": 10.7433,
+          "level": "none"
+        },
+        {
+          "feature": "DAYS_EMPLOYED",
+          "psi": 0.0142,
+          "ks_stat": 0.0292,
+          "missing_ref": 0.1795,
+          "missing_cur": 0.1856,
+          "mean_ref": -2292.5198,
+          "mean_cur": -2223.508,
+          "level": "none"
+        },
+        {
+          "feature": "CC_DRAWINGS_MEAN",
+          "psi": 0.0133,
+          "ks_stat": 0.0502,
+          "missing_ref": 0.7255,
+          "missing_cur": 0.7031,
+          "mean_ref": 14142.878,
+          "mean_cur": 12041.1185,
+          "level": "none"
+        },
+        {
+          "feature": "BUREAU_DAYS_CREDIT_MAX",
+          "psi": 0.0122,
+          "ks_stat": 0.032,
+          "missing_ref": 0.1452,
+          "missing_cur": 0.1441,
+          "mean_ref": -469.6479,
+          "mean_cur": -459.2423,
+          "level": "none"
+        },
+        {
+          "feature": "DAYS_BIRTH",
+          "psi": 0.0121,
+          "ks_stat": 0.0309,
+          "missing_ref": 0.0,
+          "missing_cur": 0.0,
+          "mean_ref": -15933.838,
+          "mean_cur": -16018.5011,
+          "level": "none"
+        },
+        {
+          "feature": "PREV_AMT_CREDIT_MEAN",
+          "psi": 0.0098,
+          "ks_stat": 0.0198,
+          "missing_ref": 0.0495,
+          "missing_cur": 0.0557,
+          "mean_ref": 168820.9804,
+          "mean_cur": 167798.1473,
+          "level": "none"
+        }
+      ]
+    }
+  },
+  "not_compared": {
+    "not_in_a_batch": 0,
+    "batches_with_too_few": {
+      "3": 1
+    }
+  }
+}
