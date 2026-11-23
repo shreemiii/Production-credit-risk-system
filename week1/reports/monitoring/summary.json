@@ -1,0 +1,262 @@
+{
+  "source": "cloud_logging",
+  "logs_file": "/Users/soumithvallapalli/Downloads/week6-recovered-predictions.json",
+  "records": 2001,
+  "model_versions": [
+    "1"
+  ],
+  "reference": {
+    "rows": 4000,
+    "what": "X_train, the model's training rows",
+    "valid_approval_rate": 0.747,
+    "valid_mean_score": 0.0813
+  },
+  "thresholds": {
+    "psi_moderate": 0.1,
+    "psi_major": 0.25
+  },
+  "batches": {
+    "1": {
+      "requests": 1000,
+      "first": "2026-11-16T20:47:34.030688+00:00",
+      "last": "2026-11-16T20:48:06.984771+00:00",
+      "approval_rate": 0.721,
+      "mean_score": 0.0901,
+      "score_psi": 3.5109,
+      "features_major": 0,
+      "features_moderate": 0,
+      "top": [
+        {
+          "feature": "YEARS_BEGINEXPLUATATION_MEDI",
+          "psi": 0.0302,
+          "ks_stat": 0.0651,
+          "missing_ref": 0.506,
+          "missing_cur": 0.482,
+          "mean_ref": 0.9767,
+          "mean_cur": 0.9776,
+          "level": "none"
+        },
+        {
+          "feature": "AMT_GOODS_PRICE",
+          "psi": 0.0217,
+          "ks_stat": 0.0436,
+          "missing_ref": 0.0005,
+          "missing_cur": 0.001,
+          "mean_ref": 551157.1681,
+          "mean_cur": 536017.2477,
+          "level": "none"
+        },
+        {
+          "feature": "DAYS_EMPLOYED",
+          "psi": 0.021,
+          "ks_stat": 0.0518,
+          "missing_ref": 0.1795,
+          "missing_cur": 0.167,
+          "mean_ref": -2292.5198,
+          "mean_cur": -2449.2221,
+          "level": "none"
+        },
+        {
+          "feature": "CC_DRAWINGS_MEAN",
+          "psi": 0.0204,
+          "ks_stat": 0.0958,
+          "missing_ref": 0.7255,
+          "missing_cur": 0.72,
+          "mean_ref": 14142.878,
+          "mean_cur": 17450.5122,
+          "level": "none"
+        },
+        {
+          "feature": "EXT_SOURCE_1",
+          "psi": 0.0193,
+          "ks_stat": 0.0471,
+          "missing_ref": 0.57,
+          "missing_cur": 0.541,
+          "mean_ref": 0.5003,
+          "mean_cur": 0.5099,
+          "level": "none"
+        },
+        {
+          "feature": "DAYS_BIRTH",
+          "psi": 0.012,
+          "ks_stat": 0.0393,
+          "missing_ref": 0.0,
+          "missing_cur": 0.0,
+          "mean_ref": -15933.838,
+          "mean_cur": -15949.566,
+          "level": "none"
+        },
+        {
+          "feature": "EXT_SOURCE_3",
+          "psi": 0.0107,
+          "ks_stat": 0.0287,
+          "missing_ref": 0.1995,
+          "missing_cur": 0.188,
+          "mean_ref": 0.5113,
+          "mean_cur": 0.5058,
+          "level": "none"
+        },
+        {
+          "feature": "CREDIT_INCOME_RATIO",
+          "psi": 0.0102,
+          "ks_stat": 0.0365,
+          "missing_ref": 0.0,
+          "missing_cur": 0.0,
+          "mean_ref": 4.0392,
+          "mean_cur": 3.8904,
+          "level": "none"
+        },
+        {
+          "feature": "PREV_AMT_CREDIT_MEAN",
+          "psi": 0.0095,
+          "ks_stat": 0.0231,
+          "missing_ref": 0.0495,
+          "missing_cur": 0.048,
+          "mean_ref": 168820.9804,
+          "mean_cur": 166222.3858,
+          "level": "none"
+        },
+        {
+          "feature": "OWN_CAR_AGE",
+          "psi": 0.0065,
+          "ks_stat": 0.0444,
+          "missing_ref": 0.658,
+          "missing_cur": 0.661,
+          "mean_ref": 12.3099,
+          "mean_cur": 12.4602,
+          "level": "none"
+        }
+      ],
+      "evidently": {
+        "html": "/Users/soumithvallapalli/Downloads/Production-credit-risk-system/week1/reports/monitoring/evidently/batch1.html",
+        "drifted_columns": 1,
+        "drifted_share": 0.05,
+        "columns": 20
+      }
+    },
+    "2": {
+      "requests": 1000,
+      "first": "2026-11-16T20:48:12.361777+00:00",
+      "last": "2026-11-16T20:48:43.760482+00:00",
+      "approval_rate": 0.688,
+      "mean_score": 0.0921,
+      "score_psi": 3.4595,
+      "features_major": 2,
+      "features_moderate": 0,
+      "top": [
+        {
+          "feature": "EXT_SOURCE_3",
+          "psi": 0.5345,
+          "ks_stat": 0.0356,
+          "missing_ref": 0.1995,
+          "missing_cur": 0.535,
+          "mean_ref": 0.5113,
+          "mean_cur": 0.5101,
+          "level": "major"
+        },
+        {
+          "feature": "CREDIT_INCOME_RATIO",
+          "psi": 0.2605,
+          "ks_stat": 0.21,
+          "missing_ref": 0.0,
+          "missing_cur": 0.0,
+          "mean_ref": 4.0392,
+          "mean_cur": 5.7698,
+          "level": "major"
+        },
+        {
+          "feature": "EXT_SOURCE_2",
+          "psi": 0.0183,
+          "ks_stat": 0.0424,
+          "missing_ref": 0.0022,
+          "missing_cur": 0.0,
+          "mean_ref": 0.5091,
+          "mean_cur": 0.5018,
+          "level": "none"
+        },
+        {
+          "feature": "NAME_HOUSING_TYPE",
+          "psi": 0.0169,
+          "ks_stat": NaN,
+          "missing_ref": 0.0,
+          "missing_cur": 0.0,
+          "mean_ref": NaN,
+          "mean_cur": NaN,
+          "level": "none"
+        },
+        {
+          "feature": "OWN_CAR_AGE",
+          "psi": 0.0146,
+          "ks_stat": 0.067,
+          "missing_ref": 0.658,
+          "missing_cur": 0.643,
+          "mean_ref": 12.3099,
+          "mean_cur": 10.8796,
+          "level": "none"
+        },
+        {
+          "feature": "DAYS_BIRTH",
+          "psi": 0.0141,
+          "ks_stat": 0.032,
+          "missing_ref": 0.0,
+          "missing_cur": 0.0,
+          "mean_ref": -15933.838,
+          "mean_cur": -16063.689,
+          "level": "none"
+        },
+        {
+          "feature": "CC_DRAWINGS_MEAN",
+          "psi": 0.0133,
+          "ks_stat": 0.0619,
+          "missing_ref": 0.7255,
+          "missing_cur": 0.706,
+          "mean_ref": 14142.878,
+          "mean_cur": 11719.0328,
+          "level": "none"
+        },
+        {
+          "feature": "DAYS_EMPLOYED",
+          "psi": 0.0112,
+          "ks_stat": 0.0279,
+          "missing_ref": 0.1795,
+          "missing_cur": 0.188,
+          "mean_ref": -2292.5198,
+          "mean_cur": -2223.5567,
+          "level": "none"
+        },
+        {
+          "feature": "BUREAU_DAYS_CREDIT_MAX",
+          "psi": 0.0111,
+          "ks_stat": 0.0319,
+          "missing_ref": 0.1452,
+          "missing_cur": 0.152,
+          "mean_ref": -469.6479,
+          "mean_cur": -458.1851,
+          "level": "none"
+        },
+        {
+          "feature": "PREV_AMT_CREDIT_MEAN",
+          "psi": 0.0101,
+          "ks_stat": 0.0187,
+          "missing_ref": 0.0495,
+          "missing_cur": 0.055,
+          "mean_ref": 168820.9804,
+          "mean_cur": 168160.1812,
+          "level": "none"
+        }
+      ],
+      "evidently": {
+        "html": "/Users/soumithvallapalli/Downloads/Production-credit-risk-system/week1/reports/monitoring/evidently/batch2.html",
+        "drifted_columns": 3,
+        "drifted_share": 0.15,
+        "columns": 20
+      }
+    }
+  },
+  "not_compared": {
+    "not_in_a_batch": 0,
+    "batches_with_too_few": {
+      "3": 1
+    }
+  }
+}
